@@ -25,7 +25,7 @@
             <q-avatar icon="logout" />
           </q-item-section>
           <q-item-section>
-            <q-item-label>注销</q-item-label>
+            <q-item-label>LogOut</q-item-label>
           </q-item-section>
         </q-item>
       </q-list>

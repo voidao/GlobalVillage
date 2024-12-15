@@ -20,6 +20,8 @@ export type Menu = {
   hidden: boolean
   name: string
   path: string
+  href?: string
+  target?: string
   permission?: string
   sort: number
   title: string
@@ -31,7 +33,10 @@ export type Menu = {
 
 const users = [
   { username: 'admin', password: 'admin', id: 'admin-uuid', name: 'Admin' },
-  { username: 'editor', password: 'editor', id: 'editor-uuid', name: 'Editor' }
+  { username: 'editor', password: 'editor', id: 'editor-uuid', name: 'Editor' },
+  { username: 'henry', password: 'henry', id: 'henry-uuid', name: 'Henry' },
+  { username: 'sam', password: 'sam', id: 'sam-uuid', name: 'Sam' },
+  { username: 'mark', password: 'mark', id: 'mark-uuid', name: 'Mark' }
 ]
 
 const menus: Array<Menu> = [
@@ -44,19 +49,19 @@ const menus: Array<Menu> = [
     name: 'layout',
     path: '/',
     sort: 1000,
-    title: 'VueCesiumDemo',
+    title: 'GlobalVillage',
     type: 10,
     children: [
       {
         id: uuidv4(),
-        component: '/index',
+        component: '/home',
         icon: 'cog',
         islock: false,
         hidden: false,
-        name: 'index',
-        path: '/index',
+        name: 'home',
+        path: '/home',
         sort: 1000,
-        caption: '首页',
+        caption: 'Home',
         title: 'message.header.index',
         type: 10,
         children: [
@@ -74,7 +79,7 @@ const menus: Array<Menu> = [
           }
         ]
       },
-      {
+      /* {
         id: uuidv4(),
         component: '/dynamic-render',
         icon: 'cog',
@@ -83,7 +88,7 @@ const menus: Array<Menu> = [
         name: 'dynamic-render',
         path: '/dynamic-render',
         sort: 1000,
-        caption: '动态渲染',
+        caption: 'Create',
         title: 'message.header.dynamicRender',
         type: 10,
         redirect: '/dynamic-render/recursive-list',
@@ -128,74 +133,63 @@ const menus: Array<Menu> = [
             type: 10
           }
         ]
-      },
+      }, */
       {
         id: uuidv4(),
-        component: '/expansion',
+        component: '/create',
         icon: 'cog',
         islock: false,
         hidden: false,
-        name: 'expansion',
-        path: '/expansion',
+        name: 'create',
+        path: '/create',
         sort: 1000,
-        caption: '扩展组件',
-        title: 'message.header.expansion',
+        caption: 'Create',
+        title: 'message.header.create',
         type: 10,
-        redirect: '/expansion/typhoon',
+        redirect: '/create/tbd',
         children: [
           {
             id: uuidv4(),
-            component: '/expansion/typhoon',
-            icon: 'timeline',
+            component: '/create/tbd',
+            icon: 'holiday_village',
             islock: false,
             hidden: false,
-            name: 'typhoon',
-            path: '/expansion/typhoon',
+            name: 'tbd',
+            path: '/create/tbd',
             sort: 1000,
-            caption: '台风组件',
-            title: 'message.sideBar.expansion.typhoon',
+            caption: 'ComingSoon',
+            title: 'message.sideBar.create.tbd',
             type: 10
           }
         ]
       },
       {
         id: uuidv4(),
-        component: '/other',
+        component: '/happiness',
         icon: 'cog',
         islock: false,
         hidden: false,
-        name: 'other',
-        path: '/other',
+        name: 'happiness',
+        path: '/happiness',
         sort: 1000,
-        caption: '其他测试',
-        title: 'message.header.other',
+        caption: 'Happiness',
+        title: 'message.header.happiness',
         type: 10,
-        redirect: '/other/issue',
+        redirect: '/happiness/hsa',
         children: [
-          // {
-          //   id: uuidv4(),
-          //   component: '/other/tsx',
-          //   icon: 'bug_report',
-          //   islock: false,
-          //   hidden: false,
-          //   name: 'tsx',
-          //   path: '/other/tsx',
-          //   sort: 1000,
-          //   caption: 'TSX 渲染',
-          //   title: 'message.sideBar.other.tsx',
-          //   type: 10
-          // },
           {
             id: uuidv4(),
-            component: '/other/issue',
-            icon: 'bug_report',
+            component: '/happiness/hsa',
+            icon: 'sentiment_very_satisfied',
             islock: false,
             hidden: false,
-            name: 'tsx',
-            path: '/other/issue',
+            name: 'hsa',
+            path: '/happiness/hsa',
+            href: 'https://www.happinessstudies.academy',
+            target: '_blank',
             sort: 1000,
-            caption: 'TSX 渲染',
-            title: 'message.sideBar.other.issue',
+            caption: 'HappinessStudiesAcademy',
+            title: 'message.sideBar.happiness.hsa',
             type: 10
           }
         ]
@@ -209,7 +203,7 @@ export default ({ service, request, serviceForMock, requestForMock, mock, tools 
    * @description 登录
    * @param {Object} data 登录携带的信息
    */
-  login(data = {}) {
+  login(data) {
     if (import.meta.env.VITE_MOCK_ENABLED !== 'true') {
       return request({
         headers: {
@@ -230,7 +224,7 @@ export default ({ service, request, serviceForMock, requestForMock, mock, tools 
       })
       return user
         ? tools.responseSuccess(assign({}, user, { token: 'f5befe1a-962c-4cdd-bf45-77ce306dbbce' }))
-        : tools.responseError({}, '账号或密码不正确')
+        : tools.responseError({}, 'Wrong Account or Password!')
     })
     // 接口请求
     return requestForMock({
@@ -262,7 +256,7 @@ export default ({ service, request, serviceForMock, requestForMock, mock, tools 
         webStorage.removeLocalStorage('token')
         webStorage.removeLocalStorage('uuid')
         router.push('/login')
-        return tools.responseError({}, '未授权, 请登录!')
+        return tools.responseError({}, 'Please Login!')
       }
     })
     // 接口请求

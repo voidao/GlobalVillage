@@ -78,8 +78,8 @@ export const useAccountStore = defineStore('account', {
           const grayStore = useGrayStore()
           grayStore.set(true)
           Dialog.create({
-            title: '注销用户',
-            message: '确定要注销当前用户吗？',
+            title: 'Log Out',
+            message: 'Confirm Log Out？',
             cancel: true
           })
             .onOk(() => {
@@ -89,7 +89,7 @@ export const useAccountStore = defineStore('account', {
             .onCancel(() => {
               grayStore.set(false)
               Notify.create({
-                message: '取消注销操作'
+                message: 'Cancel Log Out'
               })
               resolve(false)
             })

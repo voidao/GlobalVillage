@@ -67,6 +67,10 @@ export default ({ mode }) => {
     server: {
       host: '0.0.0.0',
       port: 3000,
+      fs: {
+        // Allow serving files from one level up to the project root
+        allow: ['..'],
+      },
       proxy: {
         '/traffictile': {
           target: 'https://tm.amap.com/trafficengine/mapabc/traffictile',

@@ -12,10 +12,10 @@
 export default {
   message: {
     header: {
-      index: 'Index',
-      dynamicRender: 'DynamicRender',
-      expansion: 'Expansion',
-      other: 'Test'
+      index: 'Home',
+      dynamicRender: 'Create',
+      happiness: 'Happiness',
+      create: 'Create'
     },
     sideBar: {
       dynamicRender: {
@@ -23,8 +23,11 @@ export default {
         stack: 'StackView',
         historicalTrack: 'HistoricalTrack'
       },
-      expansion: {
-        typhoon: 'Typhoon'
+      happiness: {
+        hsa: 'HappinessStudiesAcademy'
+      },
+      create: {
+        tbd: 'ComingSoon'
       },
       other: {
         tsx: 'TSX',

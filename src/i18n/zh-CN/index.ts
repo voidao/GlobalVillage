@@ -12,10 +12,10 @@
 export default {
   message: {
     header: {
-      index: '首页',
-      dynamicRender: '动态渲染',
-      expansion: '扩展组件',
-      other: '测试页面'
+      index: '家园',
+      dynamicRender: '创造',
+      happiness: '幸福',
+      create: '创造'
     },
     sideBar: {
       dynamicRender: {

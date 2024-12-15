@@ -1,10 +1,10 @@
 {
-  "name": "vue-cesium-demo",
-  "version": "0.0.0",
+  "name": "global-village",
+  "version": "0.0.1",
   "scripts": {
     "cz": "czg",
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "vite build --base=./",
     "preview": "vite preview",
     "lint": "eslint ./src --ext .vue,.js,.ts,.jsx,.tsx && pretty-quick --check --branch main ./src",
     "prepare": "husky install"
@@ -14,6 +14,7 @@
     "@turf/turf": "^6.5.0",
     "axios": "^1.6.7",
     "axios-mock-adapter": "^1.22.0",
+    "babylonjs": "^7.23.0",
     "interactjs": "^1.10.26",
     "lodash": "^4.17.21",
     "lowdb": "1.0.0",
@@ -76,5 +77,6 @@
     "commitizen": {
       "path": "./node_modules/cz-git"
     }
-  }
+  },
+  "packageManager": "yarn@1.22.19+sha1.4ba7fc5c6e704fce2066ecbfb0b0d8976fe62447"
 }

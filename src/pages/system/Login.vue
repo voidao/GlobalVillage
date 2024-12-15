@@ -10,24 +10,24 @@
   <div class="q-pa-md page-login z-top">
     <div class="login-container col row">
       <q-form greedy class="form-login" @submit="onSubmit" @reset="onReset">
-        <div class="text-h4 q-my-sm">登录</div>
-        <q-input v-model="form.username" outlined label="用户名" lazy-rules :rules="rules.username">
+        <div class="text-h4 q-my-sm">Login</div>
+        <q-input v-model="form.username" outlined label="Name" lazy-rules :rules="rules.username">
           <template #prepend>
             <q-icon class="icon" name="perm_identity" />
           </template>
         </q-input>
 
-        <q-input v-model="form.password" outlined label="密码" lazy-rules type="password" :rules="rules.password">
+        <q-input v-model="form.password" outlined label="Password" lazy-rules type="password" :rules="rules.password">
           <template #prepend>
             <q-icon class="icon" name="lock" />
           </template>
         </q-input>
         <div>
-          <q-btn class="btn-submit full-width no-outline text-h6" color="primary" label="登录" type="submit" />
+          <q-btn class="btn-submit full-width no-outline text-h6" color="primary" label="Login" type="submit" />
         </div>
 
         <div class="oath flex">
-          <div class="title full-width text-center q-pt-md">社交帐号登录</div>
+          <div class="title full-width text-center q-pt-md">Social Network LogIn</div>
           <div class="q-gutter-md full-width text-center q-pt-sm flex justify-center">
             <svg
               t="1615200042776"
@@ -93,8 +93,8 @@
           </div>
         </div>
         <div class="row justify-between q-pt-md text-grey-8">
-          <span>忘记密码</span>
-          <span class="sign-up text-center cursor-pointer"> 还没有账号？现在注册！ </span>
+          <span>Forget Password?</span>
+          <span class="sign-up text-center cursor-pointer"> Don't Have Account？Register Now！ </span>
         </div>
       </q-form>
     </div>
@@ -117,8 +117,8 @@ const form = ref({
 })
 
 const rules = {
-  username: [val => (val && val.length > 0) || '请输入用户名'],
-  password: [val => (val && val.length > 0) || '请输入用户名'],
+  username: [val => (val && val.length > 0) || 'Please Input Username'],
+  password: [val => (val && val.length > 0) || 'Please Input Password'],
   rememberMe: [val => !!val || 'You need to accept the license and terms first']
 }
 

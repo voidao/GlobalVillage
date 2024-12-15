@@ -50,7 +50,7 @@
 </template>
 <script setup lang="ts">
 import useTimeout from 'vue-cesium/es/composables/private/use-timeout'
-import { ref, computed } from 'vue'
+import { ref, computed} from 'vue'
 import { store } from '@src/store'
 import {
   VcCompassProps,
@@ -68,6 +68,8 @@ import { ThemeOptions } from '@src/types/theme'
 import { VcNavigationOtherOpts } from 'vue-cesium/es/components/controls/navigation/defaultProps'
 import { VcReadyObject } from 'vue-cesium/es/utils/types'
 
+import SceneManager from '@src/common/SceneManager/base/BaseSceneManager'
+
 defineOptions({
   name: 'VcDemoViewer'
 })
@@ -78,9 +80,7 @@ const language = {
 }
 const { locale } = useI18n()
 const cesiumPath = import.meta.env.VITE_VUE_CESIUMJS_PATH
-const accesstToken =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI5Y2U0ZTk2Ni1jNzdkLTQ3OWYtYjVmYS0yMGM3YTk3NjgzMmUiLCJpZCI6Njk5Nywic2NvcGVzIjpbImFzciIsImdjIl0sImlhdCI6MTU0ODA1MTc0OH0.Csy6yyAnv6JSBppH0Ou3ahshqcHFEhP27iOz5gjQMEo'
-// emit
+const accesstToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI5Y2U0ZTk2Ni1jNzdkLTQ3OWYtYjVmYS0yMGM3YTk3NjgzMmUiLCJpZCI6Njk5Nywic2NvcGVzIjpbImFzciIsImdjIl0sImlhdCI6MTU0ODA1MTc0OH0.Csy6yyAnv6JSBppH0Ou3ahshqcHFEhP27iOz5gjQMEo'
 const emit = defineEmits(['viewerReady', 'cesiumReady', 'leftClick', 'destroyed'])
 const vclocale = computed(() => {
   return language[locale.value]
@@ -174,6 +174,10 @@ const layerList = computed(() => [
 ])
 const terrainLayers = computed(() => store.viewer.useLayerStore().terrainLayers)
 
+// const canvas = document.getElementById('babylonCanvas');
+const canvas = document.getElementsByTagName("canvas")[0]
+
+
 // methods
 const onViewerReady = (readyObj: VcReadyObject) => {
   emit('viewerReady', readyObj)
@@ -186,10 +190,14 @@ const onViewerReady = (readyObj: VcReadyObject) => {
       content: true
     })
   }, 500)
+
+  const sceneManager = new SceneManager(readyObj, canvas)
 }
 
 const onCesiumReady = readyObj => {
   emit('cesiumReady', readyObj)
+
+  // console.log(readyObj);
 }
 
 const onLeftClick = e => {

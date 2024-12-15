@@ -15,12 +15,12 @@ export const messages = {
   'zh-CN': zhCN,
   'en-US': enUS
 }
-const locale = getLocalStorage('locale') || 'zh-CN'
+const locale = getLocalStorage('locale') || 'en-US'
 
 export const i18n = createI18n({
   legacy: false,
   locale: locale as string,
-  fallbackLocale: 'zh-CN',
+  fallbackLocale: 'en-US',
   globalInjection: true,
   messages
 })

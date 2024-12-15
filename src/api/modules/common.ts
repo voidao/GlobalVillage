@@ -45,6 +45,7 @@ export default ({ service, request, serviceForMock, requestForMock, mock, tools 
   getLocationList(query) {
     return request({
       baseURL: import.meta.env.BASE_URL,
+      // baseURL: import.meta.env.VITE_VUE_APP_AMAP_BASE_URL,
       url: '/v3/place/text',
       method: 'get',
       params: query

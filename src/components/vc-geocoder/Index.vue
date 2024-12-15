@@ -16,7 +16,7 @@
       fill-input
       input-debounce="0"
       :options="options"
-      label="输入关键字搜索位置"
+      label="Search"
       style="width: 250px"
       dense
       hide-dropdown-icon
@@ -29,7 +29,7 @@
       </template>
       <template #no-option>
         <q-item>
-          <q-item-section class="text-grey"> 没有结果 </q-item-section>
+          <q-item-section class="text-grey"> Not Found </q-item-section>
         </q-item>
       </template>
       <template #append>

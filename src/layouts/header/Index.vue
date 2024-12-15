@@ -40,15 +40,15 @@
       <vc-geocoder></vc-geocoder>
       <!-- 如果你只想在开发环境显示这个按钮请添加 v-if="isDevelopment" -->
       <!-- <header-log v-if="isDevelopment" /> -->
-      <header-layer></header-layer>
-      <header-log />
+      <!-- <header-layer></header-layer>
+      <header-log /> -->
       <header-fullscreen />
-      <header-theme />
+      <!-- <header-theme /> -->
       <header-locale />
       <header-user />
-      <q-btn size="md" flat round color="#fff" @click="onNavigation">
+      <!-- <q-btn size="md" flat round color="#fff" @click="onNavigation">
         <q-icon name="fa fa-github"></q-icon>
-      </q-btn>
+      </q-btn> -->
     </div>
   </q-toolbar>
 </template>
@@ -65,7 +65,8 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { store } from '@src/store'
 import { ThemeOptions } from '@src/types/theme'
 import { storeToRefs } from 'pinia'
-import useTimeout from 'quasar/src/composables/private/use-timeout'
+// import useTimeout from 'quasar/src/composables/private/use-timeout'
+import useTimeout from 'quasar/src/composables/use-timeout/use-timeout'
 import VcGeocoder from '@src/components/vc-geocoder/Index.vue'
 
 defineOptions({

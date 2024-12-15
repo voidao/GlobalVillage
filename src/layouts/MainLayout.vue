@@ -25,6 +25,8 @@
             active-class="menu-active-item"
             :active="menuItem.name === currentRouteName"
             @click="$router.push(menuItem.path)"
+            :href="menuItem.href"
+            :target="menuItem.target"
           >
             <q-item-section avatar>
               <q-icon :name="menuItem.icon" />
