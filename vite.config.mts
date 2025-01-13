@@ -84,6 +84,7 @@ export default ({ mode }) => {
         }
       }
     },
+    optimizeDeps: { exclude: ["@babylonjs/havok"] },
     build: {
       minify: 'terser',
       terserOptions: {

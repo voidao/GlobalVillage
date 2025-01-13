@@ -1,11 +1,12 @@
 //Key Input Manager To Use Keys to Move Forward and BackWard and Look to the Left or Right
 
-import { ICameraInput, UniversalCamera } from "babylonjs";
+// import { ICameraInput, UniversalCamera } from "babylonjs";
+import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import BaseSceneManager from "./BaseSceneManager";
 
-export class FreeCameraKeyboardWalkInput implements ICameraInput<UniversalCamera> {
+export class FreeCameraKeyboardWalkInput implements BABYLON.ICameraInput<BABYLON.UniversalCamera> {
     private sceneManager: BaseSceneManager
-    camera: UniversalCamera
+    camera: BABYLON.UniversalCamera
     private _keys = []
     private keysUp = [38]
     private keysDown = [40]
@@ -107,7 +108,7 @@ export class FreeCameraKeyboardWalkInput implements ICameraInput<UniversalCamera
         }
     };
 
-    constructor(camera: UniversalCamera, sceneManager: BaseSceneManager) {
+    constructor(camera: BABYLON.UniversalCamera, sceneManager: BaseSceneManager) {
         this.camera = camera
         this.sceneManager = sceneManager
     }

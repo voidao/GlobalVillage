@@ -1,5 +1,5 @@
 {
-  "name": "global-village",
+  "name": "edening-global-village",
   "version": "0.0.1",
   "scripts": {
     "cz": "czg",
@@ -10,11 +10,15 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@babylonjs/core": "^7.41.1",
+    "@babylonjs/havok": "^1.3.10",
+    "@babylonjs/loaders": "^7.41.1",
     "@quasar/extras": "^1.16.9",
     "@turf/turf": "^6.5.0",
     "axios": "^1.6.7",
     "axios-mock-adapter": "^1.22.0",
-    "babylonjs": "^7.23.0",
+    "babylonjs": "^7.42.0",
+    "babylonjs-loaders": "^7.42.0",
     "interactjs": "^1.10.26",
     "lodash": "^4.17.21",
     "lowdb": "1.0.0",

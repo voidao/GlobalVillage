@@ -1,44 +1,69 @@
 import { VcReadyObject } from 'vue-cesium/es/utils/types'
-import * as BABYLON from 'babylonjs'
+import * as BABYLON from '@babylonjs/core/Legacy/legacy'
+import HavokPhysics from '@babylonjs/havok'
 import RTCMultiConnection from '@src/assets/lib/RTCMultiConnection'
 import socketIO from '@src/assets/lib/socket.io'  // This line is pretty important :)
 
 import { store } from '@src/store'
 
 import { FreeCameraKeyboardWalkInput } from './InputsControl'
+import { toJSONString } from 'xe-utils'
 
 export default class BaseSceneManager {
-  private vcReadyObj: VcReadyObject
-  private base_point: BABYLON.Vector3
-  private base_point_up: BABYLON.Vector3
-  private engine: BABYLON.Engine
-  private scene: BABYLON.Scene
-  private canvas: HTMLCanvasElement
-  private camera: BABYLON.UniversalCamera
-  private RTCMC: RTCMultiConnection
-  private positionBroadcasterID: number
-  private myPlayer: BABYLON.Mesh
-  private otherPlayers: Map<string, BABYLON.Mesh>
-  private defaultPosition = {
-    LNG: 33,
-    LAT: 33,
-    ALT: 33
+  private static instance: BaseSceneManager
+
+  public vcReadyObj: VcReadyObject
+  public base_point: BABYLON.Vector3
+  public base_point_up: BABYLON.Vector3
+  public engine: BABYLON.AbstractEngine
+  public scene: BABYLON.Scene
+  public root_node: BABYLON.TransformNode
+  public canvas: HTMLCanvasElement
+  public camera: BABYLON.UniversalCamera
+  public RTCMC: RTCMultiConnection
+  public positionBroadcasterID: number
+  public myPlayer: BABYLON.Mesh
+  public otherPlayers: Map<string, BABYLON.Mesh>
+  public defaultPosition = {
+    LNG: 120.07,
+    LAT: 30.27,
+    ALT: 60
   }
 
-  private static cart2vec(cart) {
+  private static sphericalToCartesian(longitude, latitude, altitude) {
+    const EarthRadius = 6378137.0;
+
+    // Convert degrees to radians
+    const phi = latitude * Math.PI / 180;
+    const lambda = longitude * Math.PI / 180;
+    const r = EarthRadius + altitude;
+
+    // Cartesian coordinates
+    const x = r * Math.cos(phi) * Math.cos(lambda);
+    /* const y = r * Math.cos(phi) * Math.sin(lambda);
+    const z = r * Math.sin(phi); */
+    const z = r * Math.cos(phi) * Math.sin(lambda);
+    const y = r * Math.sin(phi);
+
+    return new BABYLON.Vector3(-x, z, -y);
+    // return new BABYLON.Vector3(x, y, z);
+    // return {x: x, y: y, z: z}
+  }
+
+  public static cart2vec(cart) {
     return new BABYLON.Vector3(cart.x, cart.z, cart.y);
   }
 
-  private addPlayer(video: HTMLVideoElement, userid: string, self: boolean) {
+  public prepareMaterial(video: HTMLVideoElement, scene: BABYLON.Scene): BABYLON.Material {
     // create material and texture
     var size = 512;
-    const defaultMat = new BABYLON.StandardMaterial("defaultMat", this.scene);
+    const defaultMat = new BABYLON.StandardMaterial("defaultMat", scene);
     defaultMat.emissiveColor = BABYLON.Color3.Gray();
-    defaultMat.reflectionTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/TropicalSunnyDay", this.scene);
+    defaultMat.reflectionTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/TropicalSunnyDay", scene);
     defaultMat.reflectionFresnelParameters = new BABYLON.FresnelParameters();
     defaultMat.reflectionFresnelParameters.leftColor = BABYLON.Color3.White();
     defaultMat.reflectionFresnelParameters.rightColor = BABYLON.Color3.Black();
-    var dynamicTexture = defaultMat.diffuseTexture = new BABYLON.DynamicTexture("dynamicTexture", {width:size, height:size}, this.scene);
+    var dynamicTexture = defaultMat.diffuseTexture = new BABYLON.DynamicTexture("dynamicTexture", {width:size, height:size}, scene);
   
     // text settings
     var font = "bold 96px monospace";
@@ -54,78 +79,66 @@ export default class BaseSceneManager {
     var clearColor = "#00FFFF";
     var textColor = "#FF0000";
     dynamicTexture.drawText(text, (size - textWidth) / 2, size / 2 + 24, font, textColor, clearColor, false, true);
+        
+    var videoFigureMat = new BABYLON.StandardMaterial("playerMat-" + video.id, scene);
+    var videoTexure = new BABYLON.VideoTexture(video.id, video, scene, false, true);
+    videoFigureMat.diffuseTexture = videoTexure;
+    videoFigureMat.roughness = 1;
+    videoFigureMat.emissiveColor = BABYLON.Color3.Gray();
   
-    // map face UVs to draw text only on top of cylinder
+    const playerMultiMat = new BABYLON.MultiMaterial("playerMultiMat", scene);
+    
+    playerMultiMat.subMaterials.push(videoFigureMat);
+    playerMultiMat.subMaterials.push(defaultMat);
+
+    return playerMultiMat
+  }
+
+  public addPlayer(video: HTMLVideoElement, userid: string, self: boolean) {
     var faceUV = [];
+    // map face UVs to draw text only on top of cylinder
     faceUV[0] =	new BABYLON.Vector4(0, 0, 1, 1); // use only the first pixel (which has no text, just the background color)
     faceUV[1] =	new BABYLON.Vector4(0, 0, 0, 0); // use onlly the first pixel
-    faceUV[2] = new BABYLON.Vector4(0, 0, 1, 1); // use the full texture    
+    faceUV[2] = new BABYLON.Vector4(0, 0, 1, 1); // use the full texture  
     
-    var videoFigure = BABYLON.MeshBuilder.CreateCylinder("player-" + video.id, {height: 9, diameter: 58, diameterBottom: 66, faceUV: faceUV}, this.scene);
+    var videoFigure = BABYLON.MeshBuilder.CreateCylinder("player-" + video.id, 
+        {height: 9, diameter: 58, diameterBottom: 66, faceUV: faceUV, tessellation: 68}, 
+        this.scene);
     videoFigure.id = userid;
   
     videoFigure.rotation.z = Math.PI;
     videoFigure.rotation.y = 5 * Math.PI / 6;
     videoFigure.rotation.x = 1 * Math.PI / 6;
-    // console.log('videoFigure.rotation:' + JSON.stringify(videoFigure.rotation))
-    
-    var videoFigureMat = new BABYLON.StandardMaterial("playerMat-" + video.id, this.scene);
-    var videoTexure = new BABYLON.VideoTexture(video.id, video, this.scene, false, true);
-    videoFigureMat.diffuseTexture = videoTexure;
-    videoFigureMat.roughness = 1;
-    videoFigureMat.emissiveColor = BABYLON.Color3.Gray();
-    videoFigureMat.reflectionTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/TropicalSunnyDay", this.scene);
-    videoFigureMat.reflectionFresnelParameters = new BABYLON.FresnelParameters();
-    videoFigureMat.reflectionFresnelParameters.leftColor = BABYLON.Color3.White();
-    videoFigureMat.reflectionFresnelParameters.rightColor = BABYLON.Color3.Black();
   
-    const playerMultiMat = new BABYLON.MultiMaterial("playerMultiMat", this.scene);
-    
-    playerMultiMat.subMaterials.push(videoFigureMat);
-    playerMultiMat.subMaterials.push(defaultMat);
-  
-    videoFigure.material = playerMultiMat;
+    videoFigure.material = this.prepareMaterial(video, this.scene);
   
     // videoFigure.subMeshes = [];
     const verticesCount = videoFigure.getTotalVertices();
     
-    new BABYLON.SubMesh(0, 0, verticesCount, 0, 51, videoFigure);
-    new BABYLON.SubMesh(1, 0, verticesCount, 51, 51, videoFigure);
-    new BABYLON.SubMesh(1, 0, verticesCount, 51*2, 116, videoFigure);
-    
-    this.scene.onPointerObservable.add((evt) => {
-            if(evt.pickInfo.pickedMesh === videoFigure){
-                    if(videoTexure.video.paused)
-                        videoTexure.video.play();
-                    else
-                        videoTexure.video.pause();
-                    console.log(videoTexure.video.paused?"paused":"playing");
-            }
-    }, BABYLON.PointerEventTypes.POINTERPICK);
+    new BABYLON.SubMesh(1, 0, verticesCount, 0, 613, videoFigure);
   
     if(self) {
-      // videoFigure.position = new BABYLON.Vector3(-120 * Math.random() + 300 * Math.random(), -80 * Math.random() + 200 * Math.random(), -180);
-      videoFigure.position = new BABYLON.Vector3(this.defaultPosition.LNG, this.defaultPosition.LAT, this.defaultPosition.ALT);
+      videoFigure.position = new BABYLON.Vector3(this.defaultPosition.LNG - 230 * Math.random(), this.defaultPosition.LAT - 180 * Math.random(), this.defaultPosition.ALT);
+      // videoFigure.position = BABYLON.Vector3.Zero();
       
       this.myPlayer = videoFigure;
       this.myPlayer.parent = this.camera;
   
       this.positionBroadcasterID = setInterval(() => {
         if(this.RTCMC) {
-          this.RTCMC.socket.emit('updatePosition', {
-              player: userid,
-              target: this.myPlayer.position
-          });
+          this.updatePosition()
         }
-      }, 3000);
+      }, 333);
     } else {
       videoFigure.position = BABYLON.Vector3.Zero();
       this.otherPlayers[userid] = videoFigure;
     }
 
-    /* setTimeout(() => {
-        videoFigure.rotation.z -= Math.PI /6;
-    }, 1000) */
+    /* const videoFigureAggregate = new BABYLON.PhysicsAggregate(videoFigure, 
+      BABYLON.PhysicsShapeType.CYLINDER, 
+      {mass: 1, restitution: 0.75}, 
+      this.scene)
+    videoFigureAggregate.body.disablePreStep = false */
   }
 
   private initRTC() {
@@ -149,11 +162,40 @@ export default class BaseSceneManager {
         OfferToReceiveAudio: true,
         OfferToReceiveVideo: true
     };
+
+    // first step, ignore default STUN+TURN servers
+    connection.iceServers = [];
+
+    // second step, set STUN url
+    connection.iceServers.push({
+        urls: 'stun:relay1.expressturn.com:3478'
+    });
+
+    // last step, set TURN url (recommended)
+    connection.iceServers.push({
+        urls: 'turn:relay1.expressturn.com:3478',
+        credential: 'MzfF6EsaoFoedmtF',
+        username: 'efJMS09F9O5E77NPFE'
+    });
   
     connection.onstream = (streamEvent) => {
+      // alert('onstream: ' + streamEvent.type + '-' + streamEvent.userid)
+      /* connection.setCustomSocketEvent('updatePlayer');
+      connection.socket.on('updatePlayer', (player) => {
+        this.otherPlayers[player.player] = player.target;
+        console.log('this.otherPlayers[playerPosition.player]: ' + JSON.stringify(this.otherPlayers[player.player]))
+      }); */
+
       connection.setCustomSocketEvent('updatePosition');
       connection.socket.on('updatePosition', (playerPosition) => {
-        this.otherPlayers[playerPosition.player].position = playerPosition.target;
+        if(this.otherPlayers[playerPosition.player]) {
+            /* console.log('UpdatePosition@' + playerPosition.player + ': From-'+JSON.stringify(this.otherPlayers[playerPosition.player].position) + ' To-' + JSON.stringify(playerPosition.target))
+            console.log('this.otherPlayers[playerPosition.player].position.x:' + this.otherPlayers[playerPosition.player].position._x + ' playerPosition.target.x: ' + playerPosition.target._x) */
+            // this.otherPlayers[playerPosition.player].position = playerPosition.target /* This doesn't work with Havok, so changed to the below. */
+            this.otherPlayers[playerPosition.player].position.x = playerPosition.target._x
+            this.otherPlayers[playerPosition.player].position.y = playerPosition.target._y
+            this.otherPlayers[playerPosition.player].position.z = playerPosition.target._z
+        }
       });
 
       connection.setCustomSocketEvent('updateRotation');
@@ -165,11 +207,6 @@ export default class BaseSceneManager {
         } else if(playerRotation.target == 'right') {
             this.otherPlayers[playerRotation.player].rotation.z -= Math.PI / 66;
         }
-      });
-
-      connection.setCustomSocketEvent('movePOV');
-      connection.socket.on('movePOV', (playerPosition) => {
-        this.otherPlayers[playerPosition.player].movePOV(0, playerPosition.target.y, 0)
       });
   
       if(streamEvent.type === "local") {
@@ -225,7 +262,7 @@ export default class BaseSceneManager {
         player = this.otherPlayers[event.streamid];
       }
   
-      const videoEl = player.material.diffuseTexture.video;
+      /* const videoEl = player.material.diffuseTexture.video;
   
       // Remove any <source> elements, etc.
       while (videoEl.firstChild) {
@@ -241,12 +278,13 @@ export default class BaseSceneManager {
       // Get certain browsers to let go
       videoEl.load()
   
-      videoEl.remove()
+      videoEl.remove() */
   
       player.dispose();
       
       if(event.type === "local") {
         this.myPlayer = null;
+        clearInterval(this.positionBroadcasterID);
       } else {
         delete this.otherPlayers[event.userid]
       }   
@@ -257,7 +295,7 @@ export default class BaseSceneManager {
     this.RTCMC = connection;
   }
   
-  private moveBabylonCamera() {
+  public moveBabylonCamera() {
       let fov = this.vcReadyObj.Cesium.Math.toDegrees(this.vcReadyObj.viewer.camera.frustum.fovy)
       this.camera.fov = fov / 180 * Math.PI;
   
@@ -269,7 +307,7 @@ export default class BaseSceneManager {
           civm[12], civm[13], civm[14], civm[15]
       );
   
-      let scaling = BABYLON.Vector3.Zero(), rotation = BABYLON.Vector3.Zero(), transform = BABYLON.Vector3.Zero();
+      let scaling = BABYLON.Vector3.Zero(), rotation = BABYLON.Quaternion.Zero(), transform = BABYLON.Vector3.Zero();
       camera_matrix.decompose(scaling, rotation, transform);
       let camera_pos = BaseSceneManager.cart2vec(transform),
           camera_direction = BaseSceneManager.cart2vec(this.vcReadyObj.viewer.camera.direction),
@@ -305,9 +343,12 @@ export default class BaseSceneManager {
     });
   }
 
-  private initBabylon(canvas: HTMLCanvasElement) {
+  private async initBabylon(canvas: HTMLCanvasElement) {
     const engine = new BABYLON.Engine(canvas);
     const scene = new BABYLON.Scene(engine);
+
+    // scene.debugLayer.show()
+
     scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
 
     /* scene.actionManager = new BABYLON.ActionManager(scene);
@@ -410,15 +451,9 @@ export default class BaseSceneManager {
     //Parameters: canvas, noPreventDefault
     scene.activeCamera.attachControl(canvas, true);
 
-    const root_node = new BABYLON.TransformNode("BaseNode", scene);
-    root_node.lookAt(this.base_point_up.subtract(this.base_point));
-    root_node.addRotation(Math.PI / 2, 0, 0);
-
-    engine.runRenderLoop(() => {
-        this.vcReadyObj.viewer.render();
-        this.moveBabylonCamera();
-        scene.render();
-    });
+    this.root_node = new BABYLON.TransformNode("BaseNode", scene);
+    this.root_node.lookAt(this.base_point_up.subtract(this.base_point));
+    this.root_node.addRotation(Math.PI / 2, 0, 0);
 
     // New Input Management for Camera
     
@@ -436,29 +471,221 @@ export default class BaseSceneManager {
     this.engine = engine
     this.scene = scene
     this.camera = camera
+
+    const button = document.createElement("button");
+    button.style.top = "60px";
+    button.style.left = "30px";
+    button.textContent = "@XiXiWetland";
+    button.style.width = "106px"
+    button.style.height = "33px"
+    button.style.position = "absolute";
+	button.style.color = "white";
+    button.style.background = "rgba(0, 68, 82, 0.6)"
+    button.style["border-radius"] = "30px"
+
+    document.body.appendChild(button);
+
+    button.addEventListener("click", () => {
+        const connection = this.RTCMC
+
+        // disconnect with all users
+        connection.getAllParticipants().forEach(function(pid) {
+            connection.disconnectWith(pid);
+        });
+    
+        // stop all local cameras
+        connection.attachStreams.forEach(function(localStream) {
+            localStream.stop();
+        });
+    
+        // close socket.io connection
+        connection.closeSocket();
+
+        connection.onstream = (streamEvent) => {
+            connection.setCustomSocketEvent('updatePosition');
+            connection.socket.on('updatePosition', (playerPosition) => {
+              if(this.otherPlayers[playerPosition.player]) {
+                  this.otherPlayers[playerPosition.player].position = playerPosition.target
+              }
+            });
+      
+            connection.setCustomSocketEvent('updateRotation');
+            connection.socket.on('updateRotation', (playerRotation) => {
+              if(playerRotation.target == 'left') {
+                  this.otherPlayers[playerRotation.player].rotation.z += Math.PI / 66;
+              } else if(playerRotation.target == 'right') {
+                  this.otherPlayers[playerRotation.player].rotation.z -= Math.PI / 66;
+              }
+            });
+      
+            connection.setCustomSocketEvent('movePOV');
+            connection.socket.on('movePOV', (playerPosition) => {
+              this.otherPlayers[playerPosition.player].movePOV(0, playerPosition.target.y, 0)
+            });
+        
+            if(streamEvent.type === "local") {
+              this.addPlayer(streamEvent.mediaElement, streamEvent.userid, true)
+            } else {
+              this.addPlayer(streamEvent.mediaElement, streamEvent.userid, false)
+            }
+        }
+
+        connection.openOrJoin('GV-XiXiWetland')
+
+        this.base_point = BaseSceneManager.cart2vec(this.vcReadyObj.Cesium.Cartesian3.fromDegrees(120.07, 30.27, 50));
+        this.base_point_up = BaseSceneManager.cart2vec(this.vcReadyObj.Cesium.Cartesian3.fromDegrees(120.07, 30.27, 300));
+
+        this.root_node.lookAt(this.base_point_up.subtract(this.base_point));
+        this.root_node.addRotation(Math.PI / 2, 0, 0);
+
+        this.vcReadyObj.viewer.camera.flyTo({
+            destination : this.vcReadyObj.Cesium.Cartesian3.fromDegrees(120.07, 30.27 - 0.003, 60),
+            orientation : {
+                heading : this.vcReadyObj.Cesium.Math.toRadians(0.0),
+                pitch : this.vcReadyObj.Cesium.Math.toRadians(-10.0)
+            }
+        });
+
+        this.myPlayer.position = new BABYLON.Vector3(120.07  - 230 * Math.random(), 30.27  - 180 * Math.random(), 60)
+
+        engine.runRenderLoop(() => {
+            this.vcReadyObj.viewer.render();
+            this.moveBabylonCamera();
+            this.scene.render();
+        });
+    })
+
+    engine.runRenderLoop(() => {
+        this.vcReadyObj.viewer.render();
+        this.moveBabylonCamera();
+        this.scene.render();
+    });
+  }
+
+  private async initBabylon1(canvas: HTMLCanvasElement) {
+    const engine = new BABYLON.Engine(canvas);
+    const scene = new BABYLON.Scene(engine);
+
+    // scene.debugLayer.show()
+
+    /* HavokPhysics().then((havok) => {
+        // var gravityVector = new BABYLON.Vector3(0, -9.81, 0);
+        var gravityVector = new BABYLON.Vector3(0, 0, 0)
+        const havokPlugin = new BABYLON.HavokPlugin(true, havok)
+        scene.enablePhysics(gravityVector, havokPlugin);
+    }) */
+    const havokInstance = await HavokPhysics()
+    const hk = new BABYLON.HavokPlugin(true, havokInstance)
+    scene.enablePhysics(new BABYLON.Vector3(0, 0, 0), hk)
+
+    scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
+
+    const camera = new BABYLON.UniversalCamera("camera", new BABYLON.Vector3(0, 0, -10), this.scene);
+    scene.activeCamera = camera;
+    scene.activeCamera.attachControl(canvas, true);
+
+    this.root_node = new BABYLON.TransformNode("BaseNode", scene);
+    this.root_node.lookAt(this.base_point_up.subtract(this.base_point));
+    this.root_node.addRotation(Math.PI / 2, 0, 0);
+
+    var videoFigure0 = BABYLON.MeshBuilder.CreateCylinder("player-0", 
+        {height: 9, diameter: 58, diameterBottom: 66},
+        // {height: 0.3, diameter: 0.6, diameterBottom: 0.9}, 
+        scene);
+        videoFigure0.position.y = 36
+        // videoFigure0.position.y = 0.36
+
+        videoFigure0.rotation.x = Math.PI / 2
+        videoFigure0.rotation.z = Math.PI / 2;
+
+    var videoFigure1 = BABYLON.MeshBuilder.CreateCylinder("player-1", 
+        {height: 9, diameter: 58, diameterBottom: 66},
+        // {height: 0.3, diameter: 0.6, diameterBottom: 0.9}, 
+        scene);
+        videoFigure1.position.y = 30
+        videoFigure1.position.x = 60
+        /* videoFigure1.position.y = 0.36
+        videoFigure1.position.x = 0.60 */
+
+        videoFigure1.rotation.x = Math.PI / 2
+        videoFigure1.rotation.z = Math.PI / 2;
+
+    var videoFigure0Aggregate = new BABYLON.PhysicsAggregate(videoFigure0, BABYLON.PhysicsShapeType.CYLINDER, { mass: 1 }, scene);
+    const videoFigure1Aggregate = new BABYLON.PhysicsAggregate(videoFigure1, videoFigure0Aggregate.shape, { mass: 1 }, scene)
+    videoFigure0Aggregate.body.disablePreStep = false
+    videoFigure1Aggregate.body.disablePreStep = false
+
+    scene.actionManager = new BABYLON.ActionManager(scene)
+    scene.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(
+        {
+            trigger: BABYLON.ActionManager.OnKeyDownTrigger,
+            parameter: "A",
+        },
+        () => {
+            videoFigure1.position.x -= 10
+            // videoFigure1.position.x -= 0.1
+        },
+        ),
+    );
+    scene.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(
+        {
+            trigger: BABYLON.ActionManager.OnKeyDownTrigger,
+            parameter: "D",
+        },
+        () => {
+            videoFigure0.position.x += 10
+            // videoFigure0.position.x += 0.1
+        },
+        ),
+    );
+
+    // New Input Management for Camera
+    /* camera.inputs.removeByType("FreeCameraKeyboardMoveInput");
+    camera.inputs.removeByType("FreeCameraMouseInput");
+    camera.inputs.add(new FreeCameraKeyboardWalkInput(camera, this)); */
+
+    this.engine = engine
+    this.scene = scene
+    this.camera = camera
+
+    engine.runRenderLoop(() => {
+        this.vcReadyObj.viewer.render();
+        this.moveBabylonCamera();
+        this.scene.render();
+    });
   }
 
   private init(canvas: HTMLCanvasElement) {
     this.initCesium()
     this.initBabylon(canvas)
+    // this.initBabylon1(canvas)
     this.initRTC()
   }
 
-  private updatePosition() {
+  public updatePosition() {
     this.RTCMC.socket.emit('updatePosition', {
         player: this.myPlayer.id,
         target: this.myPlayer.position
     });
   }
 
-  private updateRotation() {
+  /* private updateRotation() {
     this.RTCMC.socket.emit('updateRotation', {
         player: this.myPlayer.id,
         target: this.myPlayer.rotation
     });
   }
 
-  constructor(vcReadyObj: VcReadyObject, canvas: HTMLCanvasElement) {
+  private updatePlayer() {
+    this.RTCMC.socket.emit('updatePlayer', {
+        player: this.myPlayer.id,
+        target: this.myPlayer
+    })
+  } */
+
+  private constructor(vcReadyObj: VcReadyObject, canvas: HTMLCanvasElement) {
     this.vcReadyObj = vcReadyObj
     this.otherPlayers = new Map<string, BABYLON.Mesh>()
     this.canvas = canvas
@@ -484,6 +711,14 @@ export default class BaseSceneManager {
     }
   }
 
+  public static getInstance(vcReadyObj: VcReadyObject, canvas: HTMLCanvasElement): BaseSceneManager {
+    if (!BaseSceneManager.instance) {
+        BaseSceneManager.instance = new BaseSceneManager(vcReadyObj, canvas)
+    }
+
+    return BaseSceneManager.instance
+  }
+
   lookLeft(angle: number) {
     this.vcReadyObj.viewer.camera.lookLeft(angle)
 
@@ -507,14 +742,14 @@ export default class BaseSceneManager {
     });
   }
 
-  rotateLeft(angle: number) {
+  /* rotateLeft(angle: number) {
     this.vcReadyObj.viewer.camera.rotateLeft(angle)
   }
 
   rotateRight(angle: number) {
     this.vcReadyObj.viewer.camera.rotateRight(angle)
   }
-
+ */
   moveForward(amount: number) {
     this.vcReadyObj.viewer.camera.moveForward(amount)
 

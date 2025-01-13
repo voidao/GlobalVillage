@@ -21,7 +21,7 @@
       <!-- 请求进度条 -->
       <vc-ajax-bar position="bottom" color="#21BA45" size="3px" positioning="fixed"></vc-ajax-bar>
       <!-- 动态渲染的数据 -->
-      <dynamic-render-data></dynamic-render-data>
+      <!-- <dynamic-render-data></dynamic-render-data> -->
       <!-- 底图图层 & 叠加图层 -->
       <template v-for="(item, index) in layerList" :key="'layer' + index">
         <component :is="item.component" v-bind="item.props">
@@ -67,8 +67,13 @@ import zhCN from 'vue-cesium/es/locale/lang/zh-hans'
 import { ThemeOptions } from '@src/types/theme'
 import { VcNavigationOtherOpts } from 'vue-cesium/es/components/controls/navigation/defaultProps'
 import { VcReadyObject } from 'vue-cesium/es/utils/types'
-
-import SceneManager from '@src/common/SceneManager/base/BaseSceneManager'
+import BaseSceneManager from '@src/common/SceneManager/base/BaseSceneManager'
+import NamaqualandManager from '@src/common/SceneManager/namaqualand/NamaqualandManager'
+import WCafeManager from '@src/common/SceneManager/wcafe/WCafeManager'
+import IslandManager from '@src/common/SceneManager/island/IslandManager'
+import MRSalaManager from '@src/common/SceneManager/mr_sala/MRSalaManager'
+import MROneOneManager from '@src/common/SceneManager/mr_oneone/MROneOneManager'
+import ConZugdidiManager from '@src/common/SceneManager/con/Con_ZugdidiManager'
 
 defineOptions({
   name: 'VcDemoViewer'
@@ -191,7 +196,16 @@ const onViewerReady = (readyObj: VcReadyObject) => {
     })
   }, 500)
 
-  const sceneManager = new SceneManager(readyObj, canvas)
+  // const sceneManager = new SceneManager(readyObj, canvas)
+  // const sceneManager = new NamaqualandManager(readyObj, canvas)
+  // const sceneManager = new WCafeManager(readyObj, canvas)
+  const baseSceneManager = BaseSceneManager.getInstance(readyObj, canvas)
+  // const namaqualandManager = new NamaqualandManager(readyObj, canvas)
+  const islandManager = new IslandManager(readyObj, canvas)
+  const wCafeManager = new WCafeManager(readyObj, canvas)
+  const salaManager = new MRSalaManager(readyObj, canvas)
+  const oneOneManager = new MROneOneManager(readyObj, canvas)
+  const zugdidiManager = new ConZugdidiManager(readyObj, canvas)
 }
 
 const onCesiumReady = readyObj => {
