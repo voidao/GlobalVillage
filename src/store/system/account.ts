@@ -1,7 +1,7 @@
 /*
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2021-09-01 17:56:49
- * @LastEditTime: 2025-01-17 19:59:30
+ * @LastEditTime: 2025-01-18 11:47:29
  * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\src\store\system\account.ts
@@ -19,7 +19,7 @@ import { useThemeStore } from './theme'
 import { useTransitionStore } from './transition'
 import { Provider } from '@supabase/supabase-js'
 // import { useAuthStore } from '@src/store/auth'
-import { supabase } from '@src/lib/supabase'
+import { supabase } from '@src/api/supabase'
 
 // main is the name of the store. It is unique across your application
 // and will appear in devtools

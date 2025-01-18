@@ -2,7 +2,7 @@
  * @Author: Henry Ma henryma@edening.cn
  * @Date: 2025-01-14 14:54:55
  * @LastEditors: Henry Ma henryma@edening.cn
- * @LastEditTime: 2025-01-17 11:16:33
+ * @LastEditTime: 2025-01-18 11:49:28
  * @FilePath: /GlobalVillage/src/pages/system/AuthCallback.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { supabase } from '../../lib/supabase'
+import { supabase } from '@src/api/supabase'
 import { useUserStore } from '../../store/system/user'
 import * as webStorage from '../../utils/web-storage'
 

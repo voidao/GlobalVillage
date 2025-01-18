@@ -2,13 +2,13 @@
  * @Author: Henry Ma henryma@edening.cn
  * @Date: 2025-01-14 14:27:54
  * @LastEditors: Henry Ma henryma@edening.cn
- * @LastEditTime: 2025-01-16 12:07:29
+ * @LastEditTime: 2025-01-18 11:49:46
  * @FilePath: /GlobalVillage/src/store/auth.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { supabase } from '../lib/supabase'
+import { supabase } from '@src/api/supabase'
 import type { Provider } from '@supabase/supabase-js'
 import { useUserStore } from './system/user'
 import * as webStorage from '@src/utils/web-storage'
