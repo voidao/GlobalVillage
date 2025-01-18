@@ -1,8 +1,8 @@
 /*
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2021-12-08 23:26:13
- * @LastEditTime: 2024-01-26 14:32:32
- * @LastEditors: zouyaoji 370681295@qq.com
+ * @LastEditTime: 2025-01-18 11:58:28
+ * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\vite.config.mts
  */
@@ -84,7 +84,7 @@ export default ({ mode }) => {
         }
       }
     },
-    optimizeDeps: { exclude: ["@babylonjs/havok"] },
+    optimizeDeps: { exclude: ['@babylonjs/havok'] },
     build: {
       minify: 'terser',
       terserOptions: {
@@ -97,7 +97,7 @@ export default ({ mode }) => {
         output: {
           manualChunks(id) {
             if (id.includes('/node_modules/')) {
-              const modules = ['quasar', 'vue-cesium', 'echarts', 'lodash', 'axios', 'interactjs', 'lowdb', 'pinia']
+              const modules = ['quasar', 'vue-cesium', 'echarts', 'lodash', 'axios', 'interactjs', 'lowdb', 'pinia', '@supabase/supabase-js']
               const chunk = modules.find(module => id.includes(`/node_modules/${module}`))
               return chunk ? `vendor-${chunk}` : 'vendor'
             }
