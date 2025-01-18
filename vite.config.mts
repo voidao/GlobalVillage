@@ -1,7 +1,7 @@
 /*
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2021-12-08 23:26:13
- * @LastEditTime: 2025-01-18 11:58:28
+ * @LastEditTime: 2025-01-18 12:01:57
  * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\vite.config.mts
@@ -94,6 +94,7 @@ export default ({ mode }) => {
       },
       reportCompressedSize: false,
       rollupOptions: {
+        external: ['@supabase/supabase-js'],
         output: {
           manualChunks(id) {
             if (id.includes('/node_modules/')) {
