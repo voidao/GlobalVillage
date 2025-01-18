@@ -1,8 +1,8 @@
 <!--
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2022-01-04 15:23:46
- * @LastEditTime: 2022-10-29 09:04:47
- * @LastEditors: zouyaoji
+ * @LastEditTime: 2025-01-16 11:53:53
+ * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\src\layouts\header\user\Index.vue
 -->
@@ -16,7 +16,7 @@
     class="q-mr-sm cursor-pointer"
     auto-close
     icon="person"
-    :label="user.info?.username"
+    :label="user.info?.username || user.info?.user_metadata?.name || 'Guest'"
   >
     <q-menu>
       <q-list dense>

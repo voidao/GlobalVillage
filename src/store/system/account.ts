@@ -1,8 +1,8 @@
 /*
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2021-09-01 17:56:49
- * @LastEditTime: 2022-05-25 19:42:33
- * @LastEditors: zouyaoji
+ * @LastEditTime: 2025-01-17 19:59:30
+ * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\src\store\system\account.ts
  */
@@ -17,6 +17,10 @@ import { useMenuStore } from './menu'
 import { useGrayStore } from './gray'
 import { useThemeStore } from './theme'
 import { useTransitionStore } from './transition'
+import { Provider } from '@supabase/supabase-js'
+// import { useAuthStore } from '@src/store/auth'
+import { supabase } from '@src/lib/supabase'
+
 // main is the name of the store. It is unique across your application
 // and will appear in devtools
 export const useAccountStore = defineStore('account', {
@@ -26,6 +30,26 @@ export const useAccountStore = defineStore('account', {
   getters: {},
   // optional actions
   actions: {
+    async oAuthLogin(provider: Provider) {
+      // alert('Login with OAuth...')
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      })
+      /* const authStore = useAuthStore()
+      const userInfo = await authStore.loginWithOAuth(provider)
+      alert('userInfo: ' + JSON.stringify(userInfo))
+      webStorage.setLocalStorage('token', userInfo.token)
+      webStorage.setLocalStorage('uuid', userInfo.id)
+      const userStore = useUserStore()
+      userStore.set({
+        ...userInfo
+      })
+
+      this.load() */
+    },
     /**
      * 登录
      * @param data
@@ -57,9 +81,16 @@ export const useAccountStore = defineStore('account', {
          * @description 注销
          */
         async function logout() {
+          const { error } = await supabase.auth.signOut()
+          if (error) {
+            alert('logout error: ' + error)
+            reject(error)
+          }
           // 删除 storage
           webStorage.removeLocalStorage('token')
           webStorage.removeLocalStorage('uuid')
+
+          // alert('logout-token: ' + webStorage.getLocalStorage('token'))
           // 清空 vuex 用户信息
           const userStore = useUserStore()
           userStore.set({})
@@ -122,6 +153,22 @@ export const useAccountStore = defineStore('account', {
     }
   }
 })
+
+/* supabase.auth.onAuthStateChange((event, session) => {
+  // alert('onAuthStateChange: ' + event + ' ' + JSON.stringify(session))
+
+  if (session?.user) {
+      const userInfo = session.user
+      webStorage.setLocalStorage('token', session.provider_token)
+      webStorage.setLocalStorage('uuid', userInfo.id)
+      const userStore = useUserStore()
+      userStore.set({
+        ...userInfo
+      })
+  } else {
+    console.log('session?.user is null')
+  }
+}) */
 
 if (import.meta.hot) {
   import.meta.hot.accept(acceptHMRUpdate(useAccountStore, import.meta.hot))
