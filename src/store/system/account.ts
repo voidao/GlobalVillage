@@ -1,7 +1,7 @@
 /*
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2021-09-01 17:56:49
- * @LastEditTime: 2025-01-19 20:15:13
+ * @LastEditTime: 2025-01-19 21:46:19
  * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\src\store\system\account.ts
@@ -154,7 +154,7 @@ export const useAccountStore = defineStore('account', {
   }
 })
 
-supabase.auth.onAuthStateChange((event, session) => {
+/* supabase.auth.onAuthStateChange((event, session) => {
   alert('onAuthStateChange: ' + event + ' ' + JSON.stringify(session))
 
   if (session?.user) {
@@ -168,7 +168,7 @@ supabase.auth.onAuthStateChange((event, session) => {
   } else {
     console.log('session?.user is null')
   }
-})
+}) */
 
 if (import.meta.hot) {
   import.meta.hot.accept(acceptHMRUpdate(useAccountStore, import.meta.hot))

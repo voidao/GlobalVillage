@@ -1,8 +1,12 @@
 {
     "rewrites": [
       {
-        "source": "/((?!auth\/.*).*)",
+        "source": "/auth/(.*)",
+        "destination": "/auth/AuthCallback"
+      },
+      {
+        "source": "/(.*)",
         "destination": "/"
       }
     ]
-  }
+}
