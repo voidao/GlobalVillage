@@ -1,7 +1,7 @@
 /*
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2021-09-01 17:56:49
- * @LastEditTime: 2025-01-19 21:46:19
+ * @LastEditTime: 2025-01-20 14:11:30
  * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\src\store\system\account.ts
@@ -35,7 +35,8 @@ export const useAccountStore = defineStore('account', {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          // redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: `${window.location.origin}/authcallback`
         }
       })
       /* const authStore = useAuthStore()

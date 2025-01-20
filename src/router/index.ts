@@ -1,7 +1,7 @@
 /*
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2021-08-26 17:00:10
- * @LastEditTime: 2025-01-16 20:58:58
+ * @LastEditTime: 2025-01-20 14:13:13
  * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\src\router\index.ts
@@ -33,8 +33,8 @@ const Router = createRouter({
   history: createHistory(import.meta.env.VITE_VUE_ROUTER_BASE)
 })
 
-const whiteList = ['/login', '/404', '/auth/callback'] // 设置白名单，避免死循环
-
+// const whiteList = ['/login', '/404', '/auth/callback'] // 设置白名单，避免死循环
+const whiteList = ['/login', '/404', '/authcallback']
 Router.beforeEach(async (to, from, next) => {
   // 进度条
   NProgress.start()

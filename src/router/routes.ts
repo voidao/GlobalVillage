@@ -1,7 +1,7 @@
 /*
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2021-08-26 17:00:10
- * @LastEditTime: 2025-01-17 11:14:48
+ * @LastEditTime: 2025-01-20 14:10:37
  * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\src\router\routes.ts
@@ -62,7 +62,8 @@ const frameIn = [
     ]
   },
   {
-    path: '/auth/callback',
+    // path: '/auth/callback',
+    path: '/authcallback',
     name: 'auth-callback',
     component: () => import('@src/pages/system/AuthCallback.vue')
   }
