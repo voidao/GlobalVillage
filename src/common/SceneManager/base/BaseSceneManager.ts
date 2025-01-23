@@ -8,6 +8,7 @@ import { store } from '@src/store'
 
 import { FreeCameraKeyboardWalkInput } from './InputsControl'
 import { toJSONString } from 'xe-utils'
+import { Position } from '@src/types/position'
 
 export default class BaseSceneManager {
   private static instance: BaseSceneManager
@@ -24,7 +25,7 @@ export default class BaseSceneManager {
   public positionBroadcasterID: number
   public myPlayer: BABYLON.Mesh
   public otherPlayers: Map<string, BABYLON.Mesh>
-  public defaultPosition = {
+  public defaultPosition: Position = {
     LNG: 120.07,
     LAT: 30.27,
     ALT: 60
@@ -48,6 +49,49 @@ export default class BaseSceneManager {
     return new BABYLON.Vector3(-x, z, -y)
     // return new BABYLON.Vector3(x, y, z);
     // return {x: x, y: y, z: z}
+  }
+
+  public registerPickHandler(pickedObjectName: string, canvas: HTMLCanvasElement, load: () => void) {
+        // const pickHandler = new this.vcReadyObj.Cesium.ScreenSpaceEventHandler(this.vcReadyObj.viewer.scene.canvas)
+        // const pickHandler = new this.vcReadyObj.Cesium.ScreenSpaceEventHandler(this.vcReadyObj.viewer.canvas)
+        const pickHandler = new this.vcReadyObj.Cesium.ScreenSpaceEventHandler(canvas)
+        // const pickHandler = new this.vcReadyObj.Cesium.ScreenSpaceEventHandler()
+        pickHandler.setInputAction(event => {
+            const pickedObject = this.vcReadyObj.viewer.scene.pick(event.position)
+            // alert('PickedObject: ' + JSON.stringify(pickedObject.id.name))
+            if(pickedObject && pickedObject.id.name.includes(pickedObjectName)) {
+                load()
+            }
+        }, this.vcReadyObj.Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK)
+  }
+
+  public createModel(url: string, scale: number, position?: Position) {
+    // this.vcReadyObj.viewer.entities.removeAll()
+    const posForModel = position ? position : this.defaultPosition
+
+    const pos = Cesium.Cartesian3.fromDegrees(
+      posForModel.LNG,
+      posForModel.LAT,
+      posForModel.ALT,
+    )
+    const heading = Cesium.Math.toRadians(135)
+    const pitch = 0
+    const roll = 0
+    const hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll)
+    const orientation = Cesium.Transforms.headingPitchRollQuaternion(pos, hpr)
+
+    const entity = this.vcReadyObj.viewer.entities.add({
+      name: url,
+      position: pos,
+      orientation: orientation,
+      model: {
+        uri: url,
+        // scale: scale,
+        minimumPixelSize: 128,
+        maximumScale: scale,
+      },
+    })
+    // this.vcReadyObj.viewer.trackedEntity = entity
   }
 
   public static cart2vec(cart) {
@@ -330,7 +374,7 @@ export default class BaseSceneManager {
       this.camera.rotation.z = rotation_z
   }
 
-  private initCesium () {
+  private initCesium (canvas: HTMLCanvasElement) {
     this.base_point = BaseSceneManager.cart2vec(this.vcReadyObj.Cesium.Cartesian3.fromDegrees(this.defaultPosition.LNG, this.defaultPosition.LAT, 50))
     this.base_point_up = BaseSceneManager.cart2vec(this.vcReadyObj.Cesium.Cartesian3.fromDegrees(this.defaultPosition.LNG, this.defaultPosition.LAT, 300))
 
@@ -486,6 +530,24 @@ export default class BaseSceneManager {
     document.body.appendChild(button)
 
     button.addEventListener('click', () => {
+        /* this.createModel('/datas/gltf/MR/LowPolyHouse.glb', 1, {
+            LNG: 120.07,
+            LAT: 30.27,
+            ALT: 0
+        })
+
+        this.createModel('/datas/gltf/MR/Contemporary.glb', 1, {
+            LNG: 120.07 - 0.0006,
+            LAT: 30.27,
+            ALT: 0
+        })
+
+        this.createModel('/datas/gltf/zagorodnui.glb', 1, {
+            LNG: 120.07 + 0.0003,
+            LAT: 30.27,
+            ALT: 0
+        }) */
+
         const connection = this.RTCMC
 
         // disconnect with all users
@@ -529,6 +591,29 @@ export default class BaseSceneManager {
               this.addPlayer(streamEvent.mediaElement, streamEvent.userid, false)
             }
         }
+
+        const close = event => {
+            let player: BABYLON.Mesh
+            const otherPlayers = this.otherPlayers
+
+            if(event.type === 'local') {
+              player = this.myPlayer
+            } else {
+              player = otherPlayers[event.userid]
+            }
+
+            player.dispose()
+
+            if(event.type === 'local') {
+              this.myPlayer = null
+              clearInterval(this.positionBroadcasterID)
+            } else {
+              delete otherPlayers[event.userid]
+            }
+        }
+
+        connection.onclose = close
+        connection.onstreamended = close
 
         connection.openOrJoin('GV-XiXiWetland')
 
@@ -658,17 +743,19 @@ export default class BaseSceneManager {
   }
 
   private init(canvas: HTMLCanvasElement) {
-    this.initCesium()
+    this.initCesium(canvas)
     this.initBabylon(canvas)
     // this.initBabylon1(canvas)
     this.initRTC()
   }
 
   public updatePosition() {
-    this.RTCMC.socket.emit('updatePosition', {
-        player: this.myPlayer.id,
-        target: this.myPlayer.position
-    })
+    if(this.myPlayer && this.RTCMC && this.RTCMC.socket) {
+      this.RTCMC.socket.emit('updatePosition', {
+          player: this.myPlayer.id,
+          target: this.myPlayer.position
+      })
+    }
   }
 
   /* private updateRotation() {

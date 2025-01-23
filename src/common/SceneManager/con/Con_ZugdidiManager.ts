@@ -1,10 +1,10 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import { VcReadyObject } from 'vue-cesium/es/utils/types'
 import BaseSceneManager from '../base/BaseSceneManager'
-import { registerBuiltInLoaders } from "@babylonjs/loaders/dynamic";
-import HavokPhysics from '@babylonjs/havok';
+import { registerBuiltInLoaders } from '@babylonjs/loaders/dynamic'
+import HavokPhysics from '@babylonjs/havok'
 
-registerBuiltInLoaders();
+registerBuiltInLoaders()
 
 export default class ConZugdidiManager {
     private baseSceneManager: BaseSceneManager
@@ -15,51 +15,51 @@ export default class ConZugdidiManager {
         this.baseSceneManager.RTCMC.socket.emit('updateSeatRotation', {
             player: this.baseSceneManager.myPlayer.id,
             target: direction
-        });
+        })
     }
 
     private addZugadidiPlayer(video: HTMLVideoElement, userid: string, self: boolean) {
         // map face UVs to draw text only on top of cylinder
-        var faceUV = [];
-        faceUV[0] =	new BABYLON.Vector4(0, 0, 1, 1); // use only the first pixel (which has no text, just the background color)
-        faceUV[1] =	new BABYLON.Vector4(0, 0, 0, 0); // use onlly the first pixel
-        faceUV[2] = new BABYLON.Vector4(0, 0, 1, 1); // use the full texture    
-        
-        var videoFigure = BABYLON.MeshBuilder.CreateCylinder("player-" + video.id, 
-            {height: 0.06, diameter: 0.39, diameterBottom: 0.43, faceUV: faceUV, tessellation: 68},
-            this.zugdidiScene);
-        videoFigure.id = userid;
-      
+        const faceUV = []
+        faceUV[0] =	new BABYLON.Vector4(0, 0, 1, 1) // use only the first pixel (which has no text, just the background color)
+        faceUV[1] =	new BABYLON.Vector4(0, 0, 0, 0) // use onlly the first pixel
+        faceUV[2] = new BABYLON.Vector4(0, 0, 1, 1) // use the full texture
+
+        const videoFigure = BABYLON.MeshBuilder.CreateCylinder('player-' + video.id,
+            { height: 0.06, diameter: 0.39, diameterBottom: 0.43, faceUV: faceUV, tessellation: 68 },
+            this.zugdidiScene)
+        videoFigure.id = userid
+
         videoFigure.rotation.z = Math.PI
         videoFigure.rotation.y = 9 * Math.PI / 6
         videoFigure.rotation.x = 3 * Math.PI / 6
-      
+
         videoFigure.material = this.baseSceneManager.prepareMaterial(video, this.zugdidiScene)
-      
+
         // videoFigure.subMeshes = [];
-        const verticesCount = videoFigure.getTotalVertices();
-        
+        const verticesCount = videoFigure.getTotalVertices()
+
         new BABYLON.SubMesh(1, 0, verticesCount, 0, 613, videoFigure)
-      
+
         if(self) {
           videoFigure.position = new BABYLON.Vector3(-1 - Math.random(), 1.693, 0.316 - Math.random())
-          
-          this.baseSceneManager.myPlayer = videoFigure;
-          this.baseSceneManager.myPlayer.parent = this.zugdidiScene.activeCamera;
-      
+
+          this.baseSceneManager.myPlayer = videoFigure
+          this.baseSceneManager.myPlayer.parent = this.zugdidiScene.activeCamera
+
           this.baseSceneManager.positionBroadcasterID = setInterval(() => {
             if(this.baseSceneManager.RTCMC) {
               this.baseSceneManager.updatePosition()
             }
-          }, 3000);
+          }, 3000)
         } else {
           videoFigure.position = new BABYLON.Vector3(-1, 0.327, 0.316)
-          this.baseSceneManager.otherPlayers[userid] = videoFigure;
+          this.baseSceneManager.otherPlayers[userid] = videoFigure
         }
 
-        /* const videoFigureAggregate = new BABYLON.PhysicsAggregate(videoFigure, 
-            BABYLON.PhysicsShapeType.CYLINDER, 
-            {mass: 1, restitution: 0.75}, 
+        /* const videoFigureAggregate = new BABYLON.PhysicsAggregate(videoFigure,
+            BABYLON.PhysicsShapeType.CYLINDER,
+            {mass: 1, restitution: 0.75},
             this.salaScene)
         videoFigureAggregate.body.disablePreStep = false
 
@@ -77,10 +77,10 @@ export default class ConZugdidiManager {
             }
         }) */
 
-        this.zugdidiScene.onPointerObservable.add(((event) => {
+        this.zugdidiScene.onPointerObservable.add((event => {
             if (event.pickInfo.pickedMesh) {
                 // alert('Picked Seat: ' + event.pickInfo.pickedMesh.name)
-                
+
                 this.baseSceneManager.myPlayer.parent = null
 
                 if (event.pickInfo.pickedMesh.name.includes('Woman')) {
@@ -108,12 +108,12 @@ export default class ConZugdidiManager {
                     this.baseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.position.x - 2.70
                     this.baseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.position.z + 0.18
                 }
-                
+
                 if (event.pickInfo.pickedMesh.name.includes('Line001')) {
                     this.baseSceneManager.myPlayer.position.y = 1.372
-                    /* const myPlayerAggregate = new BABYLON.PhysicsAggregate(this.baseSceneManager.myPlayer, 
-                        BABYLON.PhysicsShapeType.CYLINDER, 
-                        {mass: 1, restitution: 1}, 
+                    /* const myPlayerAggregate = new BABYLON.PhysicsAggregate(this.baseSceneManager.myPlayer,
+                        BABYLON.PhysicsShapeType.CYLINDER,
+                        {mass: 1, restitution: 1},
                         this.zugdidiScene)
                     let joint = new BABYLON.LockConstraint(
                         new BABYLON.Vector3(0.5, 0.5, -0.5),
@@ -123,9 +123,9 @@ export default class ConZugdidiManager {
                         this.zugdidiScene
                     )
                     // let joint = new BABYLON.DistanceConstraint(0.8, this.zugdidiScene)
-                    const chairAggregate = new BABYLON.PhysicsAggregate(this.baseSceneManager.myPlayer, 
-                        BABYLON.PhysicsShapeType.CYLINDER, 
-                        {mass: 1, restitution: 1}, 
+                    const chairAggregate = new BABYLON.PhysicsAggregate(this.baseSceneManager.myPlayer,
+                        BABYLON.PhysicsShapeType.CYLINDER,
+                        {mass: 1, restitution: 1},
                         this.zugdidiScene)
                     myPlayerAggregate.body.addConstraint(chairAggregate.body, joint) */
                     this.baseSceneManager.myPlayer.rotation.y = 3 * Math.PI / 2
@@ -142,7 +142,7 @@ export default class ConZugdidiManager {
                     this.zugdidiScene.activeCamera.alpha = -3.11
                     this.zugdidiScene.activeCamera.beta = 1.55
                     this.zugdidiScene.activeCamera.radius = 10.176
-                } 
+                }
             }
         }), BABYLON.PointerEventTypes.POINTERDOUBLETAP)
     }
@@ -150,20 +150,20 @@ export default class ConZugdidiManager {
     constructor(vcReadyObj: VcReadyObject, canvas: HTMLCanvasElement) {
         this.baseSceneManager = BaseSceneManager.getInstance(vcReadyObj, canvas)
 
-        const button = document.createElement("button")
-        button.style.top = "60px"
-        button.style.left = "535px"
-        button.textContent = "@Con_Zugdidi"
-        button.style.width = "109px"
-        button.style.height = "33px"
-        button.style.position = "absolute"
-        button.style.color = "white"
-        button.style.background = "rgba(0, 68, 82, 0.6)"
-        button.style["border-radius"] = "30px"
+        const button = document.createElement('button')
+        button.style.top = '60px'
+        button.style.left = '535px'
+        button.textContent = '@Con_Zugdidi'
+        button.style.width = '109px'
+        button.style.height = '33px'
+        button.style.position = 'absolute'
+        button.style.color = 'white'
+        button.style.background = 'rgba(0, 68, 82, 0.6)'
+        button.style['border-radius'] = '30px'
 
-        document.body.appendChild(button);
+        document.body.appendChild(button)
 
-        button.addEventListener("click", () => {
+        button.addEventListener('click', () => {
             this.load()
         })
     }
@@ -173,91 +173,70 @@ export default class ConZugdidiManager {
 
         // disconnect with all users
         connection.getAllParticipants().forEach(function(pid) {
-            connection.disconnectWith(pid);
-        });
-    
+            connection.disconnectWith(pid)
+        })
+
         // stop all local cameras
         connection.attachStreams.forEach(function(localStream) {
-            localStream.stop();
-        });
-    
-        // close socket.io connection
-        connection.closeSocket();
+            localStream.stop()
+        })
 
-        connection.onstream = (streamEvent) => {
+        // close socket.io connection
+        connection.closeSocket()
+
+        connection.onstream = streamEvent => {
             const otherPlayers = this.baseSceneManager.otherPlayers
-        
-            connection.setCustomSocketEvent('updatePosition');
-            connection.socket.on('updatePosition', (playerPosition) => {
+
+            connection.setCustomSocketEvent('updatePosition')
+            connection.socket.on('updatePosition', playerPosition => {
                 if(otherPlayers[playerPosition.player]) {
                     otherPlayers[playerPosition.player].position.x = playerPosition.target._x
                     otherPlayers[playerPosition.player].position.y = playerPosition.target._y
                     otherPlayers[playerPosition.player].position.z = playerPosition.target._z
                 }
-            });
-        
-            connection.setCustomSocketEvent('updateRotation');
-            connection.socket.on('updateRotation', (playerRotation) => {
-                if(playerRotation.target == 'left') {
-                    otherPlayers[playerRotation.player].rotation.z += Math.PI / 66;
-                } else if(playerRotation.target == 'right') {
-                    otherPlayers[playerRotation.player].rotation.z -= Math.PI / 66;
-                }
-            });
+            })
 
-            connection.setCustomSocketEvent('updateSeatRotation');
-            connection.socket.on('updateSeatRotation', (playerSeatRotation) => {
+            connection.setCustomSocketEvent('updateRotation')
+            connection.socket.on('updateRotation', playerRotation => {
+                if(playerRotation.target == 'left') {
+                    otherPlayers[playerRotation.player].rotation.z += Math.PI / 66
+                } else if(playerRotation.target == 'right') {
+                    otherPlayers[playerRotation.player].rotation.z -= Math.PI / 66
+                }
+            })
+
+            connection.setCustomSocketEvent('updateSeatRotation')
+            connection.socket.on('updateSeatRotation', playerSeatRotation => {
                 switch (playerSeatRotation.target) {
                     case 'E':
-                        otherPlayers[playerSeatRotation.player].rotation.y = 3 * Math.PI / 2;
-                        break;
+                        otherPlayers[playerSeatRotation.player].rotation.y = 3 * Math.PI / 2
+                        break
                     case 'W':
-                        otherPlayers[playerSeatRotation.player].rotation.y = Math.PI / 2;
-                        break;
+                        otherPlayers[playerSeatRotation.player].rotation.y = Math.PI / 2
+                        break
                 }
-            });
-        
-            if(streamEvent.type === "local") {
+            })
+
+            if(streamEvent.type === 'local') {
                 this.addZugadidiPlayer(streamEvent.mediaElement, streamEvent.userid, true)
             } else {
                 this.addZugadidiPlayer(streamEvent.mediaElement, streamEvent.userid, false)
             }
         }
 
-        connection.onclose = (event) => {
+        const close = event => {
             let player: BABYLON.Mesh
             const otherPlayers = this.baseSceneManager.otherPlayers
-        
-            if(event.type === "local") {
-              player = this.baseSceneManager.myPlayer
-            } else {
-              player = otherPlayers[event.userid]
-        
-            player.dispose()
-        
-            if(event.type === "local") {
-              this.baseSceneManager.myPlayer = null;
-              clearInterval(this.baseSceneManager.positionBroadcasterID)
-              clearInterval(this.rotationBroadcastID)
-            } else {
-              delete otherPlayers[event.userid]
-            }
-          }
-        }
 
-        connection.onstreamended = (event) => {
-            let player: BABYLON.Mesh
-            const otherPlayers = this.baseSceneManager.otherPlayers
-        
-            if(event.type === "local") {
+            if(event.type === 'local') {
               player = this.baseSceneManager.myPlayer
             } else {
               player = otherPlayers[event.userid]
-        
+
             player.dispose()
-        
-            if(event.type === "local") {
-              this.baseSceneManager.myPlayer = null;
+
+            if(event.type === 'local') {
+              this.baseSceneManager.myPlayer = null
               clearInterval(this.baseSceneManager.positionBroadcasterID)
               clearInterval(this.rotationBroadcastID)
             } else {
@@ -265,6 +244,8 @@ export default class ConZugdidiManager {
             }
           }
         }
+        connection.onclose = close
+        connection.onstreamended = close
 
         connection.openOrJoin('GV-Con_Zugdidi')
     }
@@ -273,8 +254,8 @@ export default class ConZugdidiManager {
         const engine = this.baseSceneManager.engine
         let dlCount = 0
 
-        BABYLON.SceneLoader.Load("/datas/gltf/Con/", "zugdidi.glb", engine, 
-            (scene) => {
+        BABYLON.SceneLoader.Load('/datas/gltf/Con/', 'zugdidi.glb', engine,
+            scene => {
                 scene.executeWhenReady(async() => {
                     // scene.forceWireframe = true
                     // scene.forceShowBoundingBoxes = true
@@ -291,7 +272,7 @@ export default class ConZugdidiManager {
                     })
 
                     if (scene.activeCamera) {
-                      scene.activeCamera.attachControl(this.baseSceneManager.canvas);
+                      scene.activeCamera.attachControl(this.baseSceneManager.canvas)
                       scene.activeCamera.alpha = 0
                       scene.activeCamera.radius = 3.168
                     }
@@ -305,18 +286,18 @@ export default class ConZugdidiManager {
                     this.enter()
                 })
             },
-            (evt) => {
+            evt => {
                 if (evt.lengthComputable) {
                   engine.loadingUIText =
-                    "Loading, please wait..." +
+                    'Loading, please wait...' +
                     ((evt.loaded * 100) / evt.total).toFixed() +
-                    "%";
+                    '%'
                 } else {
-                  dlCount = evt.loaded / (1024 * 1024);
+                  dlCount = evt.loaded / (1024 * 1024)
                   engine.loadingUIText =
-                    "Loading, please wait..." +
+                    'Loading, please wait...' +
                     Math.floor(dlCount * 100.0) / 100.0 +
-                    " MB already loaded.";
+                    ' MB already loaded.'
                 }
             }
         )
