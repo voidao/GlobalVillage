@@ -123,20 +123,7 @@ export default class MROneOneManager {
     constructor(vcReadyObj: VcReadyObject, canvas: HTMLCanvasElement) {
         this.baseSceneManager = BaseSceneManager.getInstance(vcReadyObj, canvas)
 
-        const button = document.createElement('button')
-        button.style.top = '60px'
-        button.style.left = '416px'
-        button.textContent = '@MR_OneOne'
-        button.style.width = '106px'
-        button.style.height = '33px'
-        button.style.position = 'absolute'
-        button.style.color = 'white'
-        button.style.background = 'rgba(0, 68, 82, 0.6)'
-        button.style['border-radius'] = '30px'
-
-        document.body.appendChild(button)
-
-        button.addEventListener('click', () => {
+        this.baseSceneManager.createButton('@MR_OneOne', '416px', '106px', () => {
             this.load()
         })
 

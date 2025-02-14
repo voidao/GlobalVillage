@@ -83,215 +83,134 @@ export default class MRSalaManager {
 
                 this.baseSceneManager.myPlayer.parent = null
 
-                /* if (event.pickInfo.pickedMesh.name.includes('cadeirajantar.007')) {
+                if (event.pickInfo.pickedMesh.name.includes('cadeirajantar.007')) {
                     this.baseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.parent.position.x - 0.32
-                    this.baseSceneManager.myPlayer.position.y = event.pickInfo.pickedMesh.parent.position.y + 0.6
                     this.baseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.parent.position.z - 0.1
                     this.baseSceneManager.myPlayer.rotation.y = Math.PI
-                    this.updateSeatRotation('W')
+                    // this.updateSeatRotation('W')
+                    this.rotationBroadcastID = setInterval(() => {
+                        if(this.baseSceneManager.RTCMC) {
+                        this.updateSeatRotation('W')
+                        }
+                    }, 333)
 
-                    this.salaScene.activeCamera.alpha = -1.751
-                    this.salaScene.activeCamera.beta = 1.124
-                    this.salaScene.activeCamera.radius = 1.381
+                    this.salaScene.activeCamera.target.x = 0.134
+                    this.salaScene.activeCamera.target.z = 0.187
+                    this.salaScene.activeCamera.alpha = -1.69
+                    this.salaScene.activeCamera.radius = 2.255
                 } else if (event.pickInfo.pickedMesh.name.includes('cadeirajantar.006')) {
                     this.baseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.parent.position.x + 0.95
-                    this.baseSceneManager.myPlayer.position.y = event.pickInfo.pickedMesh.parent.position.y + 0.6
                     this.baseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.parent.position.z
                     this.baseSceneManager.myPlayer.rotation.y = Math.PI / 2
-                    this.updateSeatRotation('N')
+                    // this.updateSeatRotation('N')
+                    this.rotationBroadcastID = setInterval(() => {
+                        if(this.baseSceneManager.RTCMC) {
+                        this.updateSeatRotation('N')
+                        }
+                    }, 333)
 
-                    this.salaScene.activeCamera.alpha = 2.79
-                    this.salaScene.activeCamera.beta = 0.99
-                    this.salaScene.activeCamera.radius = 1.043
+                    this.salaScene.activeCamera.target.x = 0.190
+                    this.salaScene.activeCamera.target.z = 0.475
+                    this.salaScene.activeCamera.alpha = 3.07
+                    this.salaScene.activeCamera.radius = 1.656
                 } else if (event.pickInfo.pickedMesh.name.includes('cadeirajantar.005')) {
                     this.baseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.parent.position.x - 0.18 + 1.13
-                    this.baseSceneManager.myPlayer.position.y = event.pickInfo.pickedMesh.parent.position.y + 0.6
                     this.baseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.parent.position.z + 0.1 - 0.1
                     this.baseSceneManager.myPlayer.rotation.y = Math.PI / 2
-                    this.updateSeatRotation('N')
+                    // this.updateSeatRotation('N')
+                    this.rotationBroadcastID = setInterval(() => {
+                        if(this.baseSceneManager.RTCMC) {
+                        this.updateSeatRotation('N')
+                        }
+                    }, 333)
 
-                    this.salaScene.activeCamera.alpha = -0.41
-                    this.salaScene.activeCamera.beta = 1.21
-                    this.salaScene.activeCamera.radius = 0.662
+                    this.salaScene.activeCamera.target.x = 0.071
+                    this.salaScene.activeCamera.target.z = 0.157
+                    this.salaScene.activeCamera.alpha = -0.07
+                    this.salaScene.activeCamera.radius = 0.975
                 } else if (event.pickInfo.pickedMesh.name.includes('cadeirajantar.004')) {
                     this.baseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.parent.position.x - 0.18 + 1.13
-                    this.baseSceneManager.myPlayer.position.y = event.pickInfo.pickedMesh.parent.position.y + 0.6
                     this.baseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.parent.position.z + 0.1 - 0.1
                     this.baseSceneManager.myPlayer.rotation.y = Math.PI / 2
-                    this.updateSeatRotation('N')
+                    // this.updateSeatRotation('N')
+                    this.rotationBroadcastID = setInterval(() => {
+                        if(this.baseSceneManager.RTCMC) {
+                        this.updateSeatRotation('N')
+                        }
+                    }, 333)
 
-                    this.salaScene.activeCamera.alpha = -0.20
-                    this.salaScene.activeCamera.beta = 1.15
-                    this.salaScene.activeCamera.radius = 2.506
+                    this.salaScene.activeCamera.target.x = 0.013
+                    this.salaScene.activeCamera.target.z = -0.456
+                    this.salaScene.activeCamera.alpha = -0.06
+                    this.salaScene.activeCamera.radius = 1.281
                 } else if (event.pickInfo.pickedMesh.name.includes('cadeirajantar.003')) {
                     this.baseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.parent.position.x - 0.18 - 1.32
-                    this.baseSceneManager.myPlayer.position.y = event.pickInfo.pickedMesh.parent.position.y + 0.6
                     this.baseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.parent.position.z + 0.1 - 0.11
                     this.baseSceneManager.myPlayer.rotation.y = 3 * Math.PI / 2
-                    this.updateSeatRotation('S')
+                    // this.updateSeatRotation('S')
+                    this.rotationBroadcastID = setInterval(() => {
+                        if(this.baseSceneManager.RTCMC) {
+                        this.updateSeatRotation('S')
+                        }
+                    }, 333)
 
-                    this.salaScene.activeCamera.alpha = 3.32
-                    this.salaScene.activeCamera.beta = 1.10
-                    this.salaScene.activeCamera.radius = 1.341
+                    this.salaScene.activeCamera.target.x = 0.123
+                    this.salaScene.activeCamera.target.z = -0.305
+                    this.salaScene.activeCamera.alpha = 3.15
+                    this.salaScene.activeCamera.radius = 1.940
                 } else if (event.pickInfo.pickedMesh.name.includes('cadeirajantar.002')) {
                     this.baseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.parent.position.x - 0.28 - 1.22
-                    this.baseSceneManager.myPlayer.position.y = event.pickInfo.pickedMesh.parent.position.y + 0.6
                     this.baseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.parent.position.z + 0.1 - 0.1
                     this.baseSceneManager.myPlayer.rotation.y = 3 * Math.PI / 2
-                    this.updateSeatRotation('S')
+                    // this.updateSeatRotation('S')
+                    this.rotationBroadcastID = setInterval(() => {
+                        if(this.baseSceneManager.RTCMC) {
+                        this.updateSeatRotation('S')
+                        }
+                    }, 333)
 
-                    this.salaScene.activeCamera.alpha = 3.32
-                    this.salaScene.activeCamera.beta = 1.02
-                    this.salaScene.activeCamera.radius = 1.069
+                    this.salaScene.activeCamera.target.x = 0.183
+                    this.salaScene.activeCamera.target.z = 0.332
+                    this.salaScene.activeCamera.alpha = 3.19
+                    this.salaScene.activeCamera.radius = 2.008
                 } else if (event.pickInfo.pickedMesh.name.includes('cadeirajantar.001')) {
                     this.baseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.parent.position.x - 1.51
-                    this.baseSceneManager.myPlayer.position.y = event.pickInfo.pickedMesh.parent.position.y + 0.6
                     this.baseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.parent.position.z
                     this.baseSceneManager.myPlayer.rotation.y = 3 * Math.PI / 2
-                    this.updateSeatRotation('S')
+                    // this.updateSeatRotation('S')
+                    this.rotationBroadcastID = setInterval(() => {
+                        if(this.baseSceneManager.RTCMC) {
+                        this.updateSeatRotation('S')
+                        }
+                    }, 333)
 
-                    this.salaScene.activeCamera.alpha = 2.78
-                    this.salaScene.activeCamera.beta = 1.03
-                    this.salaScene.activeCamera.radius = 1.460
+                    this.salaScene.activeCamera.target.x = 0.189
+                    this.salaScene.activeCamera.target.z = 0.432
+                    this.salaScene.activeCamera.alpha = 3.10
+                    this.salaScene.activeCamera.radius = 2.059
                 } else if (event.pickInfo.pickedMesh.name.includes('cadeirajantar')) {
                     this.baseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.parent.position.x - 0.18
-                    this.baseSceneManager.myPlayer.position.y = event.pickInfo.pickedMesh.parent.position.y + 0.6
                     this.baseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.parent.position.z + 0.1
                     this.baseSceneManager.myPlayer.rotation.y = 0
-                    this.updateSeatRotation('E')
+                    // this.updateSeatRotation('E')
+                    this.rotationBroadcastID = setInterval(() => {
+                        if(this.baseSceneManager.RTCMC) {
+                        this.updateSeatRotation('E')
+                        }
+                    }, 333)
 
-                    this.salaScene.activeCamera.alpha = 1.72
-                    this.salaScene.activeCamera.beta = 1.03
-                    this.salaScene.activeCamera.radius = 1.356
-                } */
-                    if (event.pickInfo.pickedMesh.name.includes('cadeirajantar.007')) {
-                        this.baseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.parent.position.x - 0.32
-                        this.baseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.parent.position.z - 0.1
-                        this.baseSceneManager.myPlayer.rotation.y = Math.PI
-                        // this.updateSeatRotation('W')
-                        this.rotationBroadcastID = setInterval(() => {
-                            if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('W')
-                            }
-                        }, 333)
+                    this.salaScene.activeCamera.target.x = 0.028
+                    this.salaScene.activeCamera.target.z = -0.159
+                    this.salaScene.activeCamera.alpha = 1.66
+                    this.salaScene.activeCamera.radius = 2.255
+                }
 
-                        this.salaScene.activeCamera.target.x = 0.134
-                        this.salaScene.activeCamera.target.z = 0.187
-                        this.salaScene.activeCamera.alpha = -1.69
-                        this.salaScene.activeCamera.radius = 2.255
-                    } else if (event.pickInfo.pickedMesh.name.includes('cadeirajantar.006')) {
-                        this.baseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.parent.position.x + 0.95
-                        this.baseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.parent.position.z
-                        this.baseSceneManager.myPlayer.rotation.y = Math.PI / 2
-                        // this.updateSeatRotation('N')
-                        this.rotationBroadcastID = setInterval(() => {
-                            if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('N')
-                            }
-                        }, 333)
+                if (event.pickInfo.pickedMesh.name.includes('cadeirajantar')) {
+                    this.baseSceneManager.myPlayer.position.y = event.pickInfo.pickedMesh.parent.position.y + 0.6
 
-                        this.salaScene.activeCamera.target.x = 0.190
-                        this.salaScene.activeCamera.target.z = 0.475
-                        this.salaScene.activeCamera.alpha = 3.07
-                        this.salaScene.activeCamera.radius = 1.656
-                    } else if (event.pickInfo.pickedMesh.name.includes('cadeirajantar.005')) {
-                        this.baseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.parent.position.x - 0.18 + 1.13
-                        this.baseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.parent.position.z + 0.1 - 0.1
-                        this.baseSceneManager.myPlayer.rotation.y = Math.PI / 2
-                        // this.updateSeatRotation('N')
-                        this.rotationBroadcastID = setInterval(() => {
-                            if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('N')
-                            }
-                        }, 333)
-
-                        this.salaScene.activeCamera.target.x = 0.071
-                        this.salaScene.activeCamera.target.z = 0.157
-                        this.salaScene.activeCamera.alpha = -0.07
-                        this.salaScene.activeCamera.radius = 0.975
-                    } else if (event.pickInfo.pickedMesh.name.includes('cadeirajantar.004')) {
-                        this.baseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.parent.position.x - 0.18 + 1.13
-                        this.baseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.parent.position.z + 0.1 - 0.1
-                        this.baseSceneManager.myPlayer.rotation.y = Math.PI / 2
-                        // this.updateSeatRotation('N')
-                        this.rotationBroadcastID = setInterval(() => {
-                            if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('N')
-                            }
-                        }, 333)
-
-                        this.salaScene.activeCamera.target.x = 0.013
-                        this.salaScene.activeCamera.target.z = -0.456
-                        this.salaScene.activeCamera.alpha = -0.06
-                        this.salaScene.activeCamera.radius = 1.281
-                    } else if (event.pickInfo.pickedMesh.name.includes('cadeirajantar.003')) {
-                        this.baseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.parent.position.x - 0.18 - 1.32
-                        this.baseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.parent.position.z + 0.1 - 0.11
-                        this.baseSceneManager.myPlayer.rotation.y = 3 * Math.PI / 2
-                        // this.updateSeatRotation('S')
-                        this.rotationBroadcastID = setInterval(() => {
-                            if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('S')
-                            }
-                        }, 333)
-
-                        this.salaScene.activeCamera.target.x = 0.123
-                        this.salaScene.activeCamera.target.z = -0.305
-                        this.salaScene.activeCamera.alpha = 3.15
-                        this.salaScene.activeCamera.radius = 1.940
-                    } else if (event.pickInfo.pickedMesh.name.includes('cadeirajantar.002')) {
-                        this.baseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.parent.position.x - 0.28 - 1.22
-                        this.baseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.parent.position.z + 0.1 - 0.1
-                        this.baseSceneManager.myPlayer.rotation.y = 3 * Math.PI / 2
-                        // this.updateSeatRotation('S')
-                        this.rotationBroadcastID = setInterval(() => {
-                            if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('S')
-                            }
-                        }, 333)
-
-                        this.salaScene.activeCamera.target.x = 0.183
-                        this.salaScene.activeCamera.target.z = 0.332
-                        this.salaScene.activeCamera.alpha = 3.19
-                        this.salaScene.activeCamera.radius = 2.008
-                    } else if (event.pickInfo.pickedMesh.name.includes('cadeirajantar.001')) {
-                        this.baseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.parent.position.x - 1.51
-                        this.baseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.parent.position.z
-                        this.baseSceneManager.myPlayer.rotation.y = 3 * Math.PI / 2
-                        // this.updateSeatRotation('S')
-                        this.rotationBroadcastID = setInterval(() => {
-                            if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('S')
-                            }
-                        }, 333)
-
-                        this.salaScene.activeCamera.target.x = 0.189
-                        this.salaScene.activeCamera.target.z = 0.432
-                        this.salaScene.activeCamera.alpha = 3.10
-                        this.salaScene.activeCamera.radius = 2.059
-                    } else if (event.pickInfo.pickedMesh.name.includes('cadeirajantar')) {
-                        this.baseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.parent.position.x - 0.18
-                        this.baseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.parent.position.z + 0.1
-                        this.baseSceneManager.myPlayer.rotation.y = 0
-                        // this.updateSeatRotation('E')
-                        this.rotationBroadcastID = setInterval(() => {
-                            if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('E')
-                            }
-                        }, 333)
-
-                        this.salaScene.activeCamera.target.x = 0.028
-                        this.salaScene.activeCamera.target.z = -0.159
-                        this.salaScene.activeCamera.alpha = 1.66
-                        this.salaScene.activeCamera.radius = 2.255
-                    }
-
-                    if (event.pickInfo.pickedMesh.name.includes('cadeirajantar')) {
-                        this.baseSceneManager.myPlayer.position.y = event.pickInfo.pickedMesh.parent.position.y + 0.6
-
-                        this.salaScene.activeCamera.target.y = 1.080
-                        this.salaScene.activeCamera.beta = 1.13
-                    }
+                    this.salaScene.activeCamera.target.y = 1.080
+                    this.salaScene.activeCamera.beta = 1.13
+                }
             }
             /* switch (event.pickInfo.pickedMesh.name) {
                 case 'cadeirajantar_primitive1':
@@ -317,20 +236,7 @@ export default class MRSalaManager {
     constructor(vcReadyObj: VcReadyObject, canvas: HTMLCanvasElement) {
         this.baseSceneManager = BaseSceneManager.getInstance(vcReadyObj, canvas)
 
-        const button = document.createElement('button')
-        button.style.top = '60px'
-        button.style.left = '327px'
-        button.textContent = '@MR_Sala'
-        button.style.width = '86px'
-        button.style.height = '33px'
-        button.style.position = 'absolute'
-        button.style.color = 'white'
-        button.style.background = 'rgba(0, 68, 82, 0.6)'
-        button.style['border-radius'] = '30px'
-
-        document.body.appendChild(button)
-
-        button.addEventListener('click', () => {
+        this.baseSceneManager.createButton('@MR_Sala', '327px', '86px', () => {
             this.load()
         })
 

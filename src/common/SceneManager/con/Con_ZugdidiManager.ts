@@ -150,20 +150,7 @@ export default class ConZugdidiManager {
     constructor(vcReadyObj: VcReadyObject, canvas: HTMLCanvasElement) {
         this.baseSceneManager = BaseSceneManager.getInstance(vcReadyObj, canvas)
 
-        const button = document.createElement('button')
-        button.style.top = '60px'
-        button.style.left = '535px'
-        button.textContent = '@Con_Zugdidi'
-        button.style.width = '109px'
-        button.style.height = '33px'
-        button.style.position = 'absolute'
-        button.style.color = 'white'
-        button.style.background = 'rgba(0, 68, 82, 0.6)'
-        button.style['border-radius'] = '30px'
-
-        document.body.appendChild(button)
-
-        button.addEventListener('click', () => {
+        this.baseSceneManager.createButton('@Con_Zugdidi', '535px', '109px', () => {
             this.load()
         })
     }

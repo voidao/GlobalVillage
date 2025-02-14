@@ -10,30 +10,10 @@ export default class WCafeManager {
     private baseSceneManager: BaseSceneManager
     private wCafeScene: BABYLON.Scene
 
-    private addWCafePlayer(video: HTMLVideoElement, userid: string, self: boolean) {
-        // map face UVs to draw text only on top of cylinder
-        const faceUV = []
-        faceUV[0] =	new BABYLON.Vector4(0, 0, 1, 1) // use only the first pixel (which has no text, just the background color)
-        faceUV[1] =	new BABYLON.Vector4(0, 0, 0, 0) // use onlly the first pixel
-        faceUV[2] = new BABYLON.Vector4(0, 0, 1, 1) // use the full texture
+    public addWCafePlayer(streamEvent: any, sceneType: string, scene?: BABYLON.Scene) {
+        const videoFigure: BABYLON.Mesh = this.baseSceneManager.createVideoFigure(streamEvent, sceneType, scene)
 
-        const videoFigure = BABYLON.MeshBuilder.CreateCylinder('player-' + video.id,
-            { height: 0.09, diameter: 0.68, diameterBottom: 0.73, faceUV: faceUV, tessellation: 68 },
-            this.wCafeScene)
-        videoFigure.id = userid
-
-        videoFigure.rotation.z = Math.PI
-        videoFigure.rotation.y = 9 * Math.PI / 6
-        videoFigure.rotation.x = 3 * Math.PI / 6
-
-        videoFigure.material = this.baseSceneManager.prepareMaterial(video, this.wCafeScene)
-
-        // videoFigure.subMeshes = [];
-        const verticesCount = videoFigure.getTotalVertices()
-
-        new BABYLON.SubMesh(1, 0, verticesCount, 0, 613, videoFigure)
-
-        if(self) {
+        if(streamEvent.type === 'local') {
           videoFigure.position = new BABYLON.Vector3(-61 - 3 * Math.random(), 1.693, 0.316 - Math.random())
 
           this.baseSceneManager.myPlayer = videoFigure
@@ -46,7 +26,7 @@ export default class WCafeManager {
           }, 3000)
         } else {
           videoFigure.position = new BABYLON.Vector3(-61, 0.327, 0.316)
-          this.baseSceneManager.otherPlayers[userid] = videoFigure
+          this.baseSceneManager.otherPlayers[videoFigure.id] = videoFigure
         }
 
         const videoFigureAggregate = new BABYLON.PhysicsAggregate(videoFigure,
@@ -88,20 +68,7 @@ export default class WCafeManager {
     constructor(vcReadyObj: VcReadyObject, canvas: HTMLCanvasElement) {
         this.baseSceneManager = BaseSceneManager.getInstance(vcReadyObj, canvas)
 
-        const button = document.createElement('button')
-        button.style.top = '60px'
-        button.style.left = '228px'
-        button.textContent = '@WCafe'
-        button.style.width = '86px'
-        button.style.height = '33px'
-        button.style.position = 'absolute'
-        button.style.color = 'white'
-        button.style.background = 'rgba(0, 68, 82, 0.6)'
-        button.style['border-radius'] = '30px'
-
-        document.body.appendChild(button)
-
-        button.addEventListener('click', () => {
+        this.baseSceneManager.createButton('@WCafe', '228px', '86px', () => {
             this.load()
         })
 
@@ -114,7 +81,7 @@ export default class WCafeManager {
         this.baseSceneManager.registerPickHandler('villa', canvas, () => this.load())
     }
 
-    public enter() {
+    private enter(scene: BABYLON.Scene) {
         const connection = this.baseSceneManager.RTCMC
 
         // disconnect with all users
@@ -130,7 +97,7 @@ export default class WCafeManager {
         // close socket.io connection
         connection.closeSocket()
 
-        connection.onstream = streamEvent => {
+        connection.onstream = (streamEvent: any) => {
             const otherPlayers = this.baseSceneManager.otherPlayers
 
             connection.setCustomSocketEvent('updatePosition')
@@ -152,11 +119,7 @@ export default class WCafeManager {
                 }
             })
 
-            if(streamEvent.type === 'local') {
-                this.addWCafePlayer(streamEvent.mediaElement, streamEvent.userid, true)
-            } else {
-                this.addWCafePlayer(streamEvent.mediaElement, streamEvent.userid, false)
-            }
+            this.addWCafePlayer(streamEvent, 'babylon', scene)
         }
 
         connection.openOrJoin('GV-WCafe')
@@ -187,7 +150,7 @@ export default class WCafeManager {
                         this.wCafeScene.render()
                     })
 
-                    this.enter()
+                    this.enter(scene)
                 })
             },
             evt => {
