@@ -20,30 +20,10 @@ export default class MROneOneManager {
         }
     }
 
-    private addOneOnePlayer(video: HTMLVideoElement, userid: string, self: boolean) {
-        // map face UVs to draw text only on top of cylinder
-        const faceUV = []
-        faceUV[0] =	new BABYLON.Vector4(0, 0, 1, 1) // use only the first pixel (which has no text, just the background color)
-        faceUV[1] =	new BABYLON.Vector4(0, 0, 0, 0) // use onlly the first pixel
-        faceUV[2] = new BABYLON.Vector4(0, 0, 1, 1) // use the full texture
+    private addOneOnePlayer(streamEvent: any, sceneType: string, scene?: BABYLON.Scene) {
+        const videoFigure: BABYLON.Mesh = this.baseSceneManager.createVideoFigure(streamEvent, sceneType, scene)
 
-        const videoFigure = BABYLON.MeshBuilder.CreateCylinder('player-' + video.id,
-            { height: 0.06, diameter: 0.39, diameterBottom: 0.43, faceUV: faceUV, tessellation: 68 },
-            this.oneOneScene)
-        videoFigure.id = userid
-
-        videoFigure.rotation.z = Math.PI
-        videoFigure.rotation.y = 9 * Math.PI / 6
-        videoFigure.rotation.x = 3 * Math.PI / 6
-
-        videoFigure.material = this.baseSceneManager.prepareMaterial(video, this.oneOneScene)
-
-        // videoFigure.subMeshes = [];
-        const verticesCount = videoFigure.getTotalVertices()
-
-        new BABYLON.SubMesh(1, 0, verticesCount, 0, 613, videoFigure)
-
-        if(self) {
+        if(streamEvent.type === 'local') {
           videoFigure.position = new BABYLON.Vector3(-1 - Math.random(), 1.693, 0.316 - Math.random())
 
           this.baseSceneManager.myPlayer = videoFigure
@@ -56,7 +36,7 @@ export default class MROneOneManager {
           }, 3000)
         } else {
           videoFigure.position = new BABYLON.Vector3(-1, 0.327, 0.316)
-          this.baseSceneManager.otherPlayers[userid] = videoFigure
+          this.baseSceneManager.otherPlayers[videoFigure.id] = videoFigure
         }
 
         /* const videoFigureAggregate = new BABYLON.PhysicsAggregate(videoFigure,
@@ -141,7 +121,7 @@ export default class MROneOneManager {
         this.baseSceneManager.registerPickHandler('LowPolyHouse', canvas, () => this.load())
     }
 
-    public enter() {
+    private enter(scene: BABYLON.Scene) {
         const connection = this.baseSceneManager.RTCMC
 
         // disconnect with all users
@@ -190,11 +170,7 @@ export default class MROneOneManager {
                 }
             })
 
-            if(streamEvent.type === 'local') {
-                this.addOneOnePlayer(streamEvent.mediaElement, streamEvent.userid, true)
-            } else {
-                this.addOneOnePlayer(streamEvent.mediaElement, streamEvent.userid, false)
-            }
+            this.addOneOnePlayer(streamEvent, 'meeting', scene)
         }
 
         const close = event => {
@@ -224,7 +200,7 @@ export default class MROneOneManager {
         connection.openOrJoin('GV-MR_OneOne')
     }
 
-    public async load() {
+    private load() {
         const engine = this.baseSceneManager.engine
         let dlCount = 0
 
@@ -257,7 +233,7 @@ export default class MROneOneManager {
                         this.oneOneScene.render()
                     })
 
-                    this.enter()
+                    this.enter(this.oneOneScene)
                 })
             },
             evt => {

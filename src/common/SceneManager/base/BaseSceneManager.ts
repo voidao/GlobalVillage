@@ -427,9 +427,15 @@ export default class BaseSceneManager {
       videoFigure.rotation.y = 5 * Math.PI / 6
       videoFigure.rotation.x = 1 * Math.PI / 6
     } else {
-      videoFigure = BABYLON.MeshBuilder.CreateCylinder('player-' + video.id,
-        { height: 0.09, diameter: 0.68, diameterBottom: 0.73, faceUV: faceUV, tessellation: 68 },
-        scene)
+      if(sceneType === 'meeting') {
+        videoFigure = BABYLON.MeshBuilder.CreateCylinder('player-' + video.id,
+          { height: 0.06, diameter: 0.39, diameterBottom: 0.43, faceUV: faceUV, tessellation: 68 },
+          scene)
+      } else {
+        videoFigure = BABYLON.MeshBuilder.CreateCylinder('player-' + video.id,
+          { height: 0.09, diameter: 0.68, diameterBottom: 0.73, faceUV: faceUV, tessellation: 68 },
+          scene)
+      }
 
       videoFigure.rotation.z = Math.PI
       videoFigure.rotation.y = 9 * Math.PI / 6

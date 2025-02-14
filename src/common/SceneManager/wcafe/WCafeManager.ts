@@ -10,7 +10,7 @@ export default class WCafeManager {
     private baseSceneManager: BaseSceneManager
     private wCafeScene: BABYLON.Scene
 
-    public addWCafePlayer(streamEvent: any, sceneType: string, scene?: BABYLON.Scene) {
+    private addWCafePlayer(streamEvent: any, sceneType: string, scene?: BABYLON.Scene) {
         const videoFigure: BABYLON.Mesh = this.baseSceneManager.createVideoFigure(streamEvent, sceneType, scene)
 
         if(streamEvent.type === 'local') {
@@ -23,7 +23,7 @@ export default class WCafeManager {
             if(this.baseSceneManager.RTCMC) {
               this.baseSceneManager.updatePosition()
             }
-          }, 3000)
+          }, 333)
         } else {
           videoFigure.position = new BABYLON.Vector3(-61, 0.327, 0.316)
           this.baseSceneManager.otherPlayers[videoFigure.id] = videoFigure
@@ -125,7 +125,7 @@ export default class WCafeManager {
         connection.openOrJoin('GV-WCafe')
     }
 
-    public async load() {
+    private load() {
         const engine = this.baseSceneManager.engine
         let dlCount = 0
 
@@ -150,7 +150,7 @@ export default class WCafeManager {
                         this.wCafeScene.render()
                     })
 
-                    this.enter(scene)
+                    this.enter(this.wCafeScene)
                 })
             },
             evt => {

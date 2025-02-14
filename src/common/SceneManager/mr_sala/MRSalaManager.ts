@@ -18,30 +18,10 @@ export default class MRSalaManager {
         })
     }
 
-    private addSalaPlayer(video: HTMLVideoElement, userid: string, self: boolean) {
-        // map face UVs to draw text only on top of cylinder
-        const faceUV = []
-        faceUV[0] =	new BABYLON.Vector4(0, 0, 1, 1) // use only the first pixel (which has no text, just the background color)
-        faceUV[1] =	new BABYLON.Vector4(0, 0, 0, 0) // use onlly the first pixel
-        faceUV[2] = new BABYLON.Vector4(0, 0, 1, 1) // use the full texture
+    private addSalaPlayer(streamEvent: any, sceneType: string, scene?: BABYLON.Scene) {
+        const videoFigure: BABYLON.Mesh = this.baseSceneManager.createVideoFigure(streamEvent, sceneType, scene)
 
-        const videoFigure = BABYLON.MeshBuilder.CreateCylinder('player-' + video.id,
-            { height: 0.06, diameter: 0.39, diameterBottom: 0.43, faceUV: faceUV, tessellation: 68 },
-            this.salaScene)
-        videoFigure.id = userid
-
-        videoFigure.rotation.z = Math.PI
-        videoFigure.rotation.y = 9 * Math.PI / 6
-        videoFigure.rotation.x = 3 * Math.PI / 6
-
-        videoFigure.material = this.baseSceneManager.prepareMaterial(video, this.salaScene)
-
-        // videoFigure.subMeshes = [];
-        const verticesCount = videoFigure.getTotalVertices()
-
-        new BABYLON.SubMesh(1, 0, verticesCount, 0, 613, videoFigure)
-
-        if(self) {
+        if(streamEvent.type === 'local') {
           videoFigure.position = new BABYLON.Vector3(-1 - Math.random(), 1.693, 0.316 - Math.random())
 
           this.baseSceneManager.myPlayer = videoFigure
@@ -54,7 +34,7 @@ export default class MRSalaManager {
           }, 333)
         } else {
           videoFigure.position = new BABYLON.Vector3(-1, 0.327, 0.316)
-          this.baseSceneManager.otherPlayers[userid] = videoFigure
+          this.baseSceneManager.otherPlayers[videoFigure.id] = videoFigure
         }
 
         /* const videoFigureAggregate = new BABYLON.PhysicsAggregate(videoFigure,
@@ -249,7 +229,7 @@ export default class MRSalaManager {
         this.baseSceneManager.registerPickHandler('Contemporary', canvas, () => this.load())
     }
 
-    public enter() {
+    private enter(scene: BABYLON.Scene) {
         const connection = this.baseSceneManager.RTCMC
 
         // disconnect with all users
@@ -304,11 +284,7 @@ export default class MRSalaManager {
                 }
             })
 
-            if(streamEvent.type === 'local') {
-                this.addSalaPlayer(streamEvent.mediaElement, streamEvent.userid, true)
-            } else {
-                this.addSalaPlayer(streamEvent.mediaElement, streamEvent.userid, false)
-            }
+            this.addSalaPlayer(streamEvent, 'meeting', scene)
         }
 
         const close = event => {
@@ -337,7 +313,7 @@ export default class MRSalaManager {
         connection.openOrJoin('GV-MR_Sala')
     }
 
-    public async load() {
+    private load() {
         const engine = this.baseSceneManager.engine
         let dlCount = 0
 
@@ -370,7 +346,7 @@ export default class MRSalaManager {
                         this.salaScene.render()
                     })
 
-                    this.enter()
+                    this.enter(this.salaScene)
                 })
             },
             evt => {

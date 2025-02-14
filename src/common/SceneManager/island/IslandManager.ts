@@ -2,7 +2,7 @@
  * @Author: Henry Ma henryma@edening.cn
  * @Date: 2025-01-03 14:21:17
  * @LastEditors: Henry Ma henryma@edening.cn
- * @LastEditTime: 2025-02-14 11:53:06
+ * @LastEditTime: 2025-02-14 15:28:49
  * @FilePath: /GlobalVillage/src/common/SceneManager/island/IslandManager.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -25,7 +25,7 @@ export default class IslandManager {
         })
     }
 
-    public async load() {
+    private load() {
         const engine = this.baseSceneManager.engine
         let dlCount = 0
 
