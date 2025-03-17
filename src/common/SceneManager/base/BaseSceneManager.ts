@@ -10,6 +10,8 @@ import { FreeCameraKeyboardWalkInput } from './InputsControl'
 import { Position } from '@src/types/position'
 import { event } from 'quasar'
 
+import earcut from 'earcut'
+
 export default class BaseSceneManager {
   private static instance: BaseSceneManager
 
@@ -68,7 +70,10 @@ export default class BaseSceneManager {
           this.defaultPosition.LAT = position.coords.latitude
           this.defaultPosition.ALT = position.coords.altitude
 
-          this.init(canvas)
+          // this.init(canvas)
+          setTimeout(() => {
+            this.init(canvas)
+          }, 3000)
         },
         () => {
           alert('Unable to retrieve your position!')
@@ -118,7 +123,7 @@ export default class BaseSceneManager {
     }
   }
 
-  private connectPeer(streamEvent: any, sceneType: string, scene?: BABYLON.Scene) {
+  private async connectPeer(streamEvent: any, sceneType: string, scene?: BABYLON.Scene) {
     const connection = this.RTCMC
     // alert('onstream: ' + streamEvent.type + '-' + streamEvent.userid)
     /* connection.setCustomSocketEvent('updatePlayer');
@@ -144,13 +149,16 @@ export default class BaseSceneManager {
       // console.log('updateRotation-' + playerRotation.player + ': ' + JSON.stringify(playerRotation.target))
       // this.otherPlayers[playerRotation.player].rotation = playerRotation.target; // Don't know why this doesn't work, yet!!!
       if(playerRotation.target == 'left') {
-          this.otherPlayers[playerRotation.player].rotation.z += Math.PI / 66
+          // this.otherPlayers[playerRotation.player].rotation.z += Math.PI / 66
+          this.otherPlayers[playerRotation.player].rotation.y += Math.PI / 66
       } else if(playerRotation.target == 'right') {
-          this.otherPlayers[playerRotation.player].rotation.z -= Math.PI / 66
+          // this.otherPlayers[playerRotation.player].rotation.z -= Math.PI / 66
+          this.otherPlayers[playerRotation.player].rotation.y -= Math.PI / 66
       }
     })
 
-    this.addPlayer(streamEvent, sceneType, scene)
+    //this.addPlayer(streamEvent, sceneType, scene)
+     await this.addPlayer1(streamEvent, sceneType, scene)
   }
 
   private initRTC() {
@@ -251,7 +259,9 @@ export default class BaseSceneManager {
     })
   }
 
-  private initBabylon(canvas: HTMLCanvasElement) {
+  private async initBabylon(canvas: HTMLCanvasElement) {
+    await BABYLON.InitializeCSG2Async()
+
     const engine = new BABYLON.Engine(canvas)
     const scene = new BABYLON.Scene(engine)
 
@@ -259,6 +269,7 @@ export default class BaseSceneManager {
 
     scene.clearColor = new BABYLON.Color4(0, 0, 0, 0)
 
+    // const camera = new BABYLON.FreeCamera('camera', new BABYLON.Vector3(0, 0, -10), this.scene)
     const camera = new BABYLON.UniversalCamera('camera', new BABYLON.Vector3(0, 0, -10), this.scene)
 
     //First, set the scene's activeCamera... to be YOUR camera.
@@ -313,9 +324,9 @@ export default class BaseSceneManager {
     this.runRenderLoop()
   }
 
-  private init(canvas: HTMLCanvasElement) {
+  private async init(canvas: HTMLCanvasElement) {
     this.initCesium(canvas)
-    this.initBabylon(canvas)
+    await this.initBabylon(canvas)
     this.initRTC()
   }
 
@@ -367,12 +378,12 @@ export default class BaseSceneManager {
     // this.vcReadyObj.viewer.trackedEntity = entity
   }
 
-  public prepareMaterial(video: HTMLVideoElement, scene: BABYLON.Scene): BABYLON.Material {
+  private prepareMaterial(video: HTMLVideoElement, scene: BABYLON.Scene): BABYLON.Material {
     // create material and texture
     const size = 512
     const defaultMat = new BABYLON.StandardMaterial('defaultMat', scene)
     defaultMat.emissiveColor = BABYLON.Color3.Gray()
-    defaultMat.reflectionTexture = new BABYLON.CubeTexture('https://playground.babylonjs.com/textures/TropicalSunnyDay', scene)
+    // defaultMat.reflectionTexture = new BABYLON.CubeTexture('https://playground.babylonjs.com/textures/TropicalSunnyDay', scene)
     defaultMat.reflectionFresnelParameters = new BABYLON.FresnelParameters()
     defaultMat.reflectionFresnelParameters.leftColor = BABYLON.Color3.White()
     defaultMat.reflectionFresnelParameters.rightColor = BABYLON.Color3.Black()
@@ -407,7 +418,7 @@ export default class BaseSceneManager {
     return playerMultiMat
   }
 
-  public createVideoFigure(streamEvent: any, sceneType: string, scene? : BABYLON.Scene): BABYLON.Mesh{
+  public createVideoFigure(streamEvent: any, sceneType: string, scene? : BABYLON.Scene): BABYLON.Mesh {
     const video = streamEvent.mediaElement
     const userid = streamEvent.userid
 
@@ -450,6 +461,172 @@ export default class BaseSceneManager {
     return videoFigure
   }
 
+  public async createVideoFigure1(streamEvent: any, sceneType: string, scene? : BABYLON.Scene): Promise<BABYLON.Mesh> {
+      let divisor
+      if (sceneType === 'cesium') {
+        divisor = 1
+      } else {
+        divisor = 100
+      }
+
+      const radius = 10 * 3 / divisor
+
+      // await BABYLON.InitializeCSG2Async()
+
+      const sphere1 = BABYLON.MeshBuilder.CreateSphere('sphere1', { arc: 1, diameter: 6.68 * radius, slice: 0.1, sideOrientation: BABYLON.Mesh.DOUBLESIDE })
+      const sphere1kMat = new BABYLON.StandardMaterial('mVideoFigureBack', scene)
+      sphere1kMat.emissiveColor = BABYLON.Color3.Gray()
+      // sphere1kMat.emissiveColor = BABYLON.Color3.Magenta()
+      //   sphere1kMat.emissiveColor = new BABYLON.Color3(192,192,192)
+      // sphere1kMat.emissiveColor = new BABYLON.Color3(170,169,173)
+
+      sphere1.material = sphere1kMat
+      sphere1.position.z = -31.58 * 3 / divisor
+      sphere1.rotation.z = Math.PI / 2
+      sphere1.rotation.y = Math.PI / 2
+      sphere1.rotation.x = Math.PI
+
+      // Create the outer wall using a Cylinder mesh
+      const mOuter = BABYLON.MeshBuilder.CreateCylinder(
+          'mOuter',
+          {
+              diameter: 20.88 * 3 / divisor,
+              height: 0.36 / divisor,
+              tessellation: 68
+          },
+          scene,
+      )
+      // Create the inner wall using a Tube mesh
+      const mInner = BABYLON.MeshBuilder.CreateCylinder(
+          'mInner',
+          {
+              diameter: 20.58 * 3 / divisor,
+              height: 0.36 / divisor,
+              tessellation: 68
+          },
+          scene,
+      )
+      // Create CSG objects from each mesh
+      const outerCSG = BABYLON.CSG2.FromMesh(mOuter)
+      const innerCSG = BABYLON.CSG2.FromMesh(mInner)
+
+      // Create a new CSG object by subtracting the inner tube from the outer cylinder
+      const pipeCSG = outerCSG.subtract(innerCSG)
+
+      // Create the resulting mesh from the new CSG object
+      const mPipe = pipeCSG.toMesh('mPipe', scene)
+      const mPipeMat = new BABYLON.StandardMaterial('mMPipeMat', scene)
+      mPipeMat.emissiveColor = new BABYLON.Color3(0.67, 0.67, 0.67)
+      mPipe.material = mPipeMat
+      mPipe.rotation.z = Math.PI / 2
+      mPipe.rotation.y = Math.PI / 2
+      mPipe.rotation.x = Math.PI
+
+    const videoFigure = BABYLON.MeshBuilder.CreateCylinder(
+          'videoFigure',
+          {
+              diameter: 20.58 * 3 / divisor,
+              height: 0.18 / divisor,
+              tessellation: 68
+          },
+          scene,
+      )
+      const videoFigureMat = new BABYLON.StandardMaterial('playerMat-' + streamEvent.mediaElement.id, scene)
+      const videoTexure = new BABYLON.VideoTexture(streamEvent.mediaElement.id, streamEvent.mediaElement, scene, false, true)
+      videoFigureMat.diffuseTexture = videoTexure
+      videoFigureMat.roughness = 1
+      videoFigureMat.emissiveColor = BABYLON.Color3.White()
+      videoFigure.material = videoFigureMat
+      videoFigure.position.z = 0.09 / divisor
+      videoFigure.rotation.z = Math.PI / 2
+      videoFigure.rotation.y = Math.PI / 2
+      videoFigure.rotation.x = 3 * Math.PI / 2
+
+    const topSliceAt = 0.88 / divisor
+    const bottomSliceAt = 0.6 / divisor
+
+    const size = 2.1 * radius
+
+    const sphere = BABYLON.MeshBuilder.CreateSphere('sphere', { diameter: 2.086 * radius })
+
+    const box1 = BABYLON.MeshBuilder.CreateBox('box1', { size: size })
+    const box2 = box1.clone('box2')
+
+    box1.position.y = topSliceAt + size / 2
+    box2.position.y = bottomSliceAt - size / 2
+
+    const removal = BABYLON.Mesh.MergeMeshes([box1, box2])
+    const removalCSG = BABYLON.CSG2.FromMesh(removal)
+    const sphereCSG = BABYLON.CSG2.FromMesh(sphere)
+    const videoFigureBackCSG = sphereCSG.subtract(removalCSG)
+    const videoFigureBack = videoFigureBackCSG.toMesh('videoFigureBack')
+      const videoFigureBackMat = new BABYLON.StandardMaterial('mVideoFigureBack', scene)
+      videoFigureBackMat.emissiveColor = BABYLON.Color3.Gray()
+      videoFigureBack.material = videoFigureBackMat
+      videoFigureBack.position.z = 0.26 / divisor
+      videoFigureBack.rotation.z = Math.PI / 2
+      videoFigureBack.rotation.y = Math.PI / 2
+
+      const user = store.system.useUserStore()
+      const myName = user.info?.username || user.info?.user_metadata?.name || 'Guest'
+      const fontData = await (await fetch('https://assets.babylonjs.com/fonts/Droid Sans_Regular.json')).json()
+      const myText = BABYLON.MeshBuilder.CreateText('myText', myName, fontData, {
+            size: 3.9 / divisor,
+            resolution: 6,
+            depth: 0.3 / divisor,
+            // faceColors: [new BABYLON.Color4(1, 1, 1)]
+        },
+        scene,
+        earcut
+      )
+      myText.rotation.z = Math.PI
+      const myTextMat = new BABYLON.StandardMaterial('mMyText', scene)
+      myTextMat.emissiveColor = BABYLON.Color3.White()
+      myText.material = myTextMat
+      const myText1 = myText.clone('myText1')
+      myText.position.y = 23 / divisor
+      myText1.position.z = 5.6 / divisor
+      myText1.rotation.y = Math.PI
+
+    const videoFigureWhole = BABYLON.Mesh.MergeMeshes([myText, myText1, sphere1, mPipe, videoFigure, videoFigureBack], false, true, undefined, true, true)
+
+    videoFigureWhole.id = streamEvent.userid
+    videoFigureWhole.name = 'player-' + streamEvent.userid
+
+    videoFigureWhole.rotation.z = Math.PI
+    if (sceneType === 'cesium') {
+      /* videoFigureWhole.rotation.y = 5 * Math.PI / 6
+      videoFigureWhole.rotation.x = - Math.PI / 3 */
+      videoFigureWhole.rotation.y = Math.PI
+    } else {
+      videoFigureWhole.rotation.y = 9 * Math.PI / 6
+    }
+
+    // Dispose of the meshes, no longer needed
+    mInner.dispose()
+    mOuter.dispose()
+    outerCSG.dispose()
+    innerCSG.dispose()
+
+    box1.dispose()
+    box2.dispose()
+    removal.dispose()
+    sphere.dispose()
+
+    pipeCSG.dispose()
+    mPipe.dispose()
+
+    sphere1.dispose()
+
+    myText1.dispose()
+    myText.dispose()
+
+    videoFigure.dispose()
+    videoFigureBack.dispose()
+
+    return videoFigureWhole
+}
+
   public addPlayer(streamEvent: any, sceneType: string, scene?: BABYLON.Scene) {
 
     const videoFigure: BABYLON.Mesh = this.createVideoFigure(streamEvent, sceneType, scene)
@@ -472,6 +649,43 @@ export default class BaseSceneManager {
     } else {
       if(sceneType === 'cesium') {
         videoFigure.position = BABYLON.Vector3.Zero()
+      } else {
+        videoFigure.position = new BABYLON.Vector3(-61, 0.327, 0.316)
+      }
+
+      this.otherPlayers[videoFigure.id] = videoFigure
+    }
+
+    /* const videoFigureAggregate = new BABYLON.PhysicsAggregate(videoFigure,
+      BABYLON.PhysicsShapeType.CYLINDER,
+      {mass: 1, restitution: 0.75},
+      this.scene)
+    videoFigureAggregate.body.disablePreStep = false */
+  }
+
+  public async addPlayer1(streamEvent: any, sceneType: string, scene?: BABYLON.Scene) {
+
+    const videoFigure: BABYLON.Mesh = await this.createVideoFigure1(streamEvent, sceneType, scene)
+
+    if(streamEvent.type === 'local') {
+      if(sceneType === 'cesium') {
+        videoFigure.position = new BABYLON.Vector3(this.defaultPosition.LNG - 230 * Math.random(), this.defaultPosition.LAT - 180 * Math.random(), this.defaultPosition.ALT)
+      } else {
+        videoFigure.position = new BABYLON.Vector3(1.08 - 3 * Math.random(), 3.33, 1.27 - 3 * Math.random())
+      }
+
+      this.myPlayer = videoFigure
+      this.myPlayer.parent = this.camera
+
+      this.positionBroadcasterID = setInterval(() => {
+        if(this.RTCMC) {
+          this.updatePosition()
+        }
+      }, 333)
+    } else {
+      if(sceneType === 'cesium') {
+        videoFigure.position = BABYLON.Vector3.Zero()
+        videoFigure.parent = this.root_node
       } else {
         videoFigure.position = new BABYLON.Vector3(-61, 0.327, 0.316)
       }
@@ -519,7 +733,7 @@ export default class BaseSceneManager {
         // close socket.io connection
         connection.closeSocket()
 
-        connection.onstream = (streamEvent: any) => this.connectPeer(streamEvent, sceneType, scene)
+        connection.onstream = async (streamEvent: any) => await this.connectPeer(streamEvent, sceneType, scene)
 
         connection.onclose = (event: any) => this.closeRTC(event)
         connection.onstreamended = (event: any) => this.closeRTC(event)
@@ -563,14 +777,16 @@ export default class BaseSceneManager {
     this.vcReadyObj.viewer.camera.moveForward(amount)
 
     // Needs Better Solution!!!
-    this.myPlayer.movePOV(0, 0.3, 0)
+    // this.myPlayer.movePOV(0, 0.3, 0)
+    this.myPlayer.movePOV(0, 0, 0.3)
     this.updatePosition()
   }
 
   moveBackward(amount: number) {
     this.vcReadyObj.viewer.camera.moveBackward(amount)
 
-    this.myPlayer.movePOV(0, -0.3, 0)
+    // this.myPlayer.movePOV(0, -0.3, 0)
+    this.myPlayer.movePOV(0, 0, -0.3)
     this.updatePosition()
   }
 }

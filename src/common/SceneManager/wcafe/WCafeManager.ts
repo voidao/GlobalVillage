@@ -10,8 +10,9 @@ export default class WCafeManager {
     private baseSceneManager: BaseSceneManager
     private wCafeScene: BABYLON.Scene
 
-    private addWCafePlayer(streamEvent: any, sceneType: string, scene?: BABYLON.Scene) {
-        const videoFigure: BABYLON.Mesh = this.baseSceneManager.createVideoFigure(streamEvent, sceneType, scene)
+    private async addWCafePlayer(streamEvent: any, sceneType: string, scene?: BABYLON.Scene) {
+        // const videoFigure: BABYLON.Mesh = this.baseSceneManager.createVideoFigure(streamEvent, sceneType, scene)
+        const videoFigure: BABYLON.Mesh = await this.baseSceneManager.createVideoFigure1(streamEvent, sceneType, scene)
 
         if(streamEvent.type === 'local') {
           videoFigure.position = new BABYLON.Vector3(-61 - 3 * Math.random(), 1.693, 0.316 - Math.random())
@@ -113,9 +114,11 @@ export default class WCafeManager {
             connection.setCustomSocketEvent('updateRotation')
             connection.socket.on('updateRotation', playerRotation => {
                 if(playerRotation.target == 'left') {
-                    otherPlayers[playerRotation.player].rotation.z += Math.PI / 66
+                    // otherPlayers[playerRotation.player].rotation.z += Math.PI / 66
+                    otherPlayers[playerRotation.player].rotation.y += Math.PI / 66
                 } else if(playerRotation.target == 'right') {
-                    otherPlayers[playerRotation.player].rotation.z -= Math.PI / 66
+                    // otherPlayers[playerRotation.player].rotation.z -= Math.PI / 66
+                    otherPlayers[playerRotation.player].rotation.y -= Math.PI / 66
                 }
             })
 

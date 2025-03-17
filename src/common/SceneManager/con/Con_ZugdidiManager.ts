@@ -18,8 +18,9 @@ export default class ConZugdidiManager {
         })
     }
 
-    private addZugadidiPlayer(streamEvent: any, sceneType: string, scene?: BABYLON.Scene) {
-        const videoFigure: BABYLON.Mesh = this.baseSceneManager.createVideoFigure(streamEvent, sceneType, scene)
+    private async addZugadidiPlayer(streamEvent: any, sceneType: string, scene?: BABYLON.Scene) {
+        // const videoFigure: BABYLON.Mesh = this.baseSceneManager.createVideoFigure(streamEvent, sceneType, scene)
+        const videoFigure: BABYLON.Mesh = await this.baseSceneManager.createVideoFigure1(streamEvent, sceneType, scene)
 
         if(streamEvent.type === 'local') {
           videoFigure.position = new BABYLON.Vector3(-1 - Math.random(), 1.693, 0.316 - Math.random())
@@ -64,7 +65,7 @@ export default class ConZugdidiManager {
                 this.baseSceneManager.myPlayer.parent = null
 
                 if (event.pickInfo.pickedMesh.name.includes('Woman')) {
-                    this.baseSceneManager.myPlayer.position.x = 10.723
+                    this.baseSceneManager.myPlayer.position.x = 10.723 + 0.03
                     this.baseSceneManager.myPlayer.position.y = 2.580
                     this.baseSceneManager.myPlayer.position.z = -8.720
                     this.baseSceneManager.myPlayer.rotation.y = Math.PI / 2
@@ -166,9 +167,11 @@ export default class ConZugdidiManager {
             connection.setCustomSocketEvent('updateRotation')
             connection.socket.on('updateRotation', playerRotation => {
                 if(playerRotation.target == 'left') {
-                    otherPlayers[playerRotation.player].rotation.z += Math.PI / 66
+                    // otherPlayers[playerRotation.player].rotation.z += Math.PI / 66
+                    otherPlayers[playerRotation.player].rotation.y += Math.PI / 66
                 } else if(playerRotation.target == 'right') {
-                    otherPlayers[playerRotation.player].rotation.z -= Math.PI / 66
+                    // otherPlayers[playerRotation.player].rotation.z -= Math.PI / 66
+                    otherPlayers[playerRotation.player].rotation.y -= Math.PI / 66
                 }
             })
 
