@@ -1,8 +1,8 @@
 <!--
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2022-01-04 16:12:47
- * @LastEditTime: 2024-01-26 14:35:11
- * @LastEditors: zouyaoji 370681295@qq.com
+ * @LastEditTime: 2025-03-24 16:53:04
+ * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\src\components\viewer\Index.vue
 -->
@@ -49,8 +49,9 @@
   </vc-config-provider>
 </template>
 <script setup lang="ts">
+import { useRoute } from 'vue-router'
 import useTimeout from 'vue-cesium/es/composables/private/use-timeout'
-import { ref, computed} from 'vue'
+import { ref, computed } from 'vue'
 import { store } from '@src/store'
 import {
   VcCompassProps,
@@ -75,9 +76,13 @@ import MRSalaManager from '@src/common/SceneManager/mr_sala/MRSalaManager'
 import MROneOneManager from '@src/common/SceneManager/mr_oneone/MROneOneManager'
 import ConZugdidiManager from '@src/common/SceneManager/con/Con_ZugdidiManager'
 
+import OfficeManager from '@src/common/SceneManager/office/OfficeManager'
+
 defineOptions({
   name: 'VcDemoViewer'
 })
+
+const route = useRoute()
 
 const language = {
   'en-US': enUS,
@@ -85,7 +90,8 @@ const language = {
 }
 const { locale } = useI18n()
 const cesiumPath = import.meta.env.VITE_VUE_CESIUMJS_PATH
-const accesstToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI5Y2U0ZTk2Ni1jNzdkLTQ3OWYtYjVmYS0yMGM3YTk3NjgzMmUiLCJpZCI6Njk5Nywic2NvcGVzIjpbImFzciIsImdjIl0sImlhdCI6MTU0ODA1MTc0OH0.Csy6yyAnv6JSBppH0Ou3ahshqcHFEhP27iOz5gjQMEo'
+const accesstToken =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI5Y2U0ZTk2Ni1jNzdkLTQ3OWYtYjVmYS0yMGM3YTk3NjgzMmUiLCJpZCI6Njk5Nywic2NvcGVzIjpbImFzciIsImdjIl0sImlhdCI6MTU0ODA1MTc0OH0.Csy6yyAnv6JSBppH0Ou3ahshqcHFEhP27iOz5gjQMEo'
 const emit = defineEmits(['viewerReady', 'cesiumReady', 'leftClick', 'destroyed'])
 const vclocale = computed(() => {
   return language[locale.value]
@@ -180,8 +186,7 @@ const layerList = computed(() => [
 const terrainLayers = computed(() => store.viewer.useLayerStore().terrainLayers)
 
 // const canvas = document.getElementById('babylonCanvas');
-const canvas = document.getElementsByTagName("canvas")[0]
-
+const canvas = document.getElementsByTagName('canvas')[0]
 
 // methods
 const onViewerReady = (readyObj: VcReadyObject) => {
@@ -206,6 +211,14 @@ const onViewerReady = (readyObj: VcReadyObject) => {
   const salaManager = new MRSalaManager(readyObj, canvas)
   const oneOneManager = new MROneOneManager(readyObj, canvas)
   const zugdidiManager = new ConZugdidiManager(readyObj, canvas)
+
+  if (route.path.includes('/office/')) {
+    const officeId = route.params.officeId
+    setTimeout(() => {
+      // alert('officeId: ' + route.params.officeId)
+      new OfficeManager(readyObj, canvas, officeId)
+    }, 6333)
+  }
 }
 
 const onCesiumReady = readyObj => {

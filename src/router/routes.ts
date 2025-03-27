@@ -1,7 +1,7 @@
 /*
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2021-08-26 17:00:10
- * @LastEditTime: 2025-01-20 14:10:37
+ * @LastEditTime: 2025-03-18 16:24:47
  * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\src\router\routes.ts
@@ -66,6 +66,13 @@ const frameIn = [
     path: '/authcallback',
     name: 'auth-callback',
     component: () => import('@src/pages/system/AuthCallback.vue')
+  },
+  {
+    path: '/office/:officeId',
+    // path: '/myoffice',
+    name: 'my-office',
+    component: () => import('@src/layouts/MainLayout.vue')
+    // component: () => import('@src/pages/system/AuthCallback.vue')
   }
 ]
 /**

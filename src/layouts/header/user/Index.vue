@@ -1,7 +1,7 @@
 <!--
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2022-01-04 15:23:46
- * @LastEditTime: 2025-01-16 11:53:53
+ * @LastEditTime: 2025-03-24 17:12:00
  * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\src\layouts\header\user\Index.vue
@@ -28,6 +28,14 @@
             <q-item-label>LogOut</q-item-label>
           </q-item-section>
         </q-item>
+        <q-item v-if="user.info?.user_metadata?.email" v-close-popup clickable dense @click="enterOffice">
+          <q-item-section avatar>
+            <q-avatar icon="logout" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>My Office</q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-menu>
   </q-chip>
@@ -38,6 +46,7 @@ import { store } from '@src/store'
 import { useVueCesium } from 'vue-cesium'
 import { flyToCamera } from 'vue-cesium/es/utils/cesium-helpers'
 import { renderData } from '@src/utils'
+import router from '@src/router'
 
 const { toggleGlobalLayout } = store.system.useLayoutStore()
 const { loadDefaultLayers } = store.viewer.useLayerStore()
@@ -71,5 +80,11 @@ const onItemClick = () => {
           })
       }
     })
+}
+
+const enterOffice = () => {
+  // alert('Entering My Office...' + user.info?.id)
+  router.push('/office/' + user.info?.id)
+  setTimeout(() => window.location.reload(), 333)
 }
 </script>

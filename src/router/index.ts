@@ -1,7 +1,7 @@
 /*
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2021-08-26 17:00:10
- * @LastEditTime: 2025-01-20 14:13:13
+ * @LastEditTime: 2025-03-21 16:30:01
  * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\src\router\index.ts
@@ -36,6 +36,10 @@ const Router = createRouter({
 // const whiteList = ['/login', '/404', '/auth/callback'] // 设置白名单，避免死循环
 const whiteList = ['/login', '/404', '/authcallback']
 Router.beforeEach(async (to, from, next) => {
+  /* if (to.path.includes('/office/')) {
+    next()
+    return
+  } */
   // 进度条
   NProgress.start()
   // 关闭搜索面板
@@ -62,7 +66,7 @@ Router.beforeEach(async (to, from, next) => {
         next()
       }
     } catch (e) {
-      if (whiteList.indexOf(to.path) !== -1) {
+      if (whiteList.indexOf(to.path) !== -1 || to.path.includes('/office/')) {
         // 在免登录白名单，直接进入
         next()
       } else {
@@ -70,7 +74,7 @@ Router.beforeEach(async (to, from, next) => {
       }
     }
   } else {
-    if (whiteList.indexOf(to.path) !== -1) {
+    if (whiteList.indexOf(to.path) !== -1 || to.path.includes('/office/')) {
       next()
     } else {
       next('/login')
@@ -82,6 +86,8 @@ Router.afterEach(to => {
   // 进度条
   NProgress.done()
   // 更改标题
-  util.title(i18n.global.t(to.meta.title as string))
+  if (to.meta.title) {
+    util.title(i18n.global.t(to.meta.title as string))
+  }
 })
 export default Router
