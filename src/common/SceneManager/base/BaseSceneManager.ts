@@ -184,7 +184,32 @@ export default class BaseSceneManager {
     }
 
     // first step, ignore default STUN+TURN servers
-    connection.iceServers = []
+    // connection.iceServers = []
+    connection.iceServers = [
+      {
+        urls: 'stun:stun.relay.metered.ca:80',
+      },
+      {
+        urls: 'turn:global.relay.metered.ca:80',
+        username: 'a8c932eea459fea5ad773294',
+        credential: 'fKLEO19XTqPdvQo3',
+      },
+      {
+        urls: 'turn:global.relay.metered.ca:80?transport=tcp',
+        username: 'a8c932eea459fea5ad773294',
+        credential: 'fKLEO19XTqPdvQo3',
+      },
+      {
+        urls: 'turn:global.relay.metered.ca:443',
+        username: 'a8c932eea459fea5ad773294',
+        credential: 'fKLEO19XTqPdvQo3',
+      },
+      {
+        urls: 'turns:global.relay.metered.ca:443?transport=tcp',
+        username: 'a8c932eea459fea5ad773294',
+        credential: 'fKLEO19XTqPdvQo3',
+      },
+  ]
 
     // second step, set STUN url
     connection.iceServers.push({
