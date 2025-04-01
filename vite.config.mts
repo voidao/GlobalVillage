@@ -1,7 +1,7 @@
 /*
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2021-12-08 23:26:13
- * @LastEditTime: 2025-01-18 21:28:39
+ * @LastEditTime: 2025-04-01 09:00:20
  * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\vite.config.mts
@@ -11,6 +11,8 @@ import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import { quasar, transformAssetUrls } from '@quasar/vite-plugin'
 import vueJsx from '@vitejs/plugin-vue-jsx'
+
+import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('./package.json')
@@ -37,7 +39,15 @@ export default ({ mode }) => {
       quasar({
         sassVariables: true
       }),
-      htmlPlugin()
+      htmlPlugin(),
+      viteStaticCopy({
+        targets: [
+          {
+            src: 'dist/*',
+            dest: 'office'
+          }
+        ]
+      })
     ],
     resolve: {
       alias: {
