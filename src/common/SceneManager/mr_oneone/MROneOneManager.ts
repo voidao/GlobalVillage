@@ -1,43 +1,36 @@
+/*
+ * @Author: Henry Ma henryma@edening.cn
+ * @Date: 2025-06-05 12:22:39
+ * @LastEditors: Henry Ma henryma@edening.cn
+ * @LastEditTime: 2025-06-11 16:12:11
+ * @FilePath: /GlobalVillage/src/common/SceneManager/mr_oneone/MROneOneManager.ts
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
-import { VcReadyObject } from 'vue-cesium/es/utils/types'
-import BaseSceneManager from '../base/BaseSceneManager'
+import BaseSceneManager from '@src/common/SceneManager/base/BaseSceneManager1'
 import { registerBuiltInLoaders } from '@babylonjs/loaders/dynamic'
-import HavokPhysics from '@babylonjs/havok'
 
 registerBuiltInLoaders()
 
-export default class MROneOneManager {
-    private baseSceneManager: BaseSceneManager
-    private oneOneScene: BABYLON.Scene
-    private rotationBroadcastID: number
+export default class MROneOneManager extends BaseSceneManager{
 
-    private updateSeatRotation(direction: string) {
-        if(this.baseSceneManager.myPlayer && this.baseSceneManager.RTCMC && this.baseSceneManager.RTCMC.socket) {
-            this.baseSceneManager.RTCMC.socket.emit('updateSeatRotation', {
-                player: this.baseSceneManager.myPlayer.id,
-                target: direction
-            })
-        }
-    }
-
-    private async addOneOnePlayer(streamEvent: any, sceneType: string, scene?: BABYLON.Scene) {
-        // const videoFigure: BABYLON.Mesh = this.baseSceneManager.createVideoFigure(streamEvent, sceneType, scene)
-        const videoFigure: BABYLON.Mesh = await this.baseSceneManager.createVideoFigure1(streamEvent, sceneType, scene)
+    async addPlayer(streamEvent: any, sceneType: string, scene?: BABYLON.Scene) {
+        const videoFigure: BABYLON.Mesh = await BaseSceneManager.createVideoFigure(streamEvent, sceneType, scene)
 
         if(streamEvent.type === 'local') {
           videoFigure.position = new BABYLON.Vector3(-1 - Math.random(), 1.693, 0.316 - Math.random())
 
-          this.baseSceneManager.myPlayer = videoFigure
-          this.baseSceneManager.myPlayer.parent = this.oneOneScene.activeCamera
+          BaseSceneManager.myPlayer = videoFigure
+          BaseSceneManager.myPlayer.parent = BaseSceneManager.camera
 
-          this.baseSceneManager.positionBroadcasterID = setInterval(() => {
-            if(this.baseSceneManager.RTCMC) {
-              this.baseSceneManager.updatePosition()
+          BaseSceneManager.positionBroadcasterID = setInterval(() => {
+            if(BaseSceneManager.RTCMC) {
+                BaseSceneManager.updatePosition()
             }
-          }, 3000)
+          }, 333)
         } else {
           videoFigure.position = new BABYLON.Vector3(-1, 0.327, 0.316)
-          this.baseSceneManager.otherPlayers[videoFigure.id] = videoFigure
+          BaseSceneManager.otherPlayers[videoFigure.id] = videoFigure
         }
 
         /* const videoFigureAggregate = new BABYLON.PhysicsAggregate(videoFigure,
@@ -60,199 +53,48 @@ export default class MROneOneManager {
             }
         }) */
 
-        this.oneOneScene.onPointerObservable.add((event => {
+        BaseSceneManager.scene.onPointerObservable.add((event => {
             if (event.pickInfo.pickedMesh) {
                 // alert('Picked Seat: ' + event.pickInfo.pickedMesh.name)
 
-                this.baseSceneManager.myPlayer.parent = null
+                BaseSceneManager.myPlayer.parent = null
+
+                if (BaseSceneManager.rotationBroadcastID) {
+                    clearInterval(BaseSceneManager.rotationBroadcastID)
+                }
 
                 if (event.pickInfo.pickedMesh.name == 'Stool2') {
-                    this.baseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.parent.position.x + 0.66
-                    this.baseSceneManager.myPlayer.position.y = 1.193
-                    this.baseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.parent.position.z
-                    this.baseSceneManager.myPlayer.rotation.y = Math.PI / 2
+                    BaseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.parent.position.x + 0.66
+                    BaseSceneManager.myPlayer.position.y = 1.193
+                    BaseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.parent.position.z
+                    BaseSceneManager.myPlayer.rotation.y = Math.PI / 2
                     // this.updateSeatRotation('W')
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                        this.updateSeatRotation('W')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('S')
                         }
                     }, 333)
 
-                    this.oneOneScene.activeCamera.alpha = -0.023
-                    this.oneOneScene.activeCamera.beta = 1.020
-                    this.oneOneScene.activeCamera.radius = 3.254
+                    BaseSceneManager.scene.activeCamera.alpha = -0.023
+                    BaseSceneManager.scene.activeCamera.beta = 1.020
+                    BaseSceneManager.scene.activeCamera.radius = 3.254
                 } else if (event.pickInfo.pickedMesh.name == 'Stool') {
-                    this.baseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.parent.position.x - 0.66
-                    this.baseSceneManager.myPlayer.position.y = 1.193
-                    this.baseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.parent.position.z
-                    this.baseSceneManager.myPlayer.rotation.y = 3 * Math.PI / 2
+                    BaseSceneManager.myPlayer.position.x = event.pickInfo.pickedMesh.parent.position.x - 0.66
+                    BaseSceneManager.myPlayer.position.y = 1.193
+                    BaseSceneManager.myPlayer.position.z = event.pickInfo.pickedMesh.parent.position.z
+                    BaseSceneManager.myPlayer.rotation.y = 3 * Math.PI / 2
                     // this.updateSeatRotation('E')
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                        this.updateSeatRotation('E')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('N')
                         }
                     }, 333)
 
-                    this.oneOneScene.activeCamera.alpha = -3.145
-                    this.oneOneScene.activeCamera.beta = 1.020
-                    this.oneOneScene.activeCamera.radius = 3.254
+                    BaseSceneManager.scene.activeCamera.alpha = -3.145
+                    BaseSceneManager.scene.activeCamera.beta = 1.020
+                    BaseSceneManager.scene.activeCamera.radius = 3.254
                 }
             }
         }), BABYLON.PointerEventTypes.POINTERDOUBLETAP)
-    }
-
-    constructor(vcReadyObj: VcReadyObject, canvas: HTMLCanvasElement) {
-        this.baseSceneManager = BaseSceneManager.getInstance(vcReadyObj, canvas)
-
-        this.baseSceneManager.createButton('@MR_OneOne', '416px', '106px', () => {
-            this.load()
-        })
-
-        this.baseSceneManager.createModel('/datas/gltf/MR/LowPolyHouse.glb', 1, {
-            LNG: 120.07,
-            LAT: 30.27,
-            ALT: 0
-        })
-        /* this.baseSceneManager.createModel('/datas/gltf/MR/OneOne.glb', 1, {
-            LNG: 120.07,
-            LAT: 30.27,
-            ALT: 0
-        }) */
-
-        this.baseSceneManager.registerPickHandler('LowPolyHouse', canvas, () => this.load())
-    }
-
-    private enter(scene: BABYLON.Scene) {
-        const connection = this.baseSceneManager.RTCMC
-
-        // disconnect with all users
-        connection.getAllParticipants().forEach(function(pid) {
-            connection.disconnectWith(pid)
-        })
-
-        // stop all local cameras
-        connection.attachStreams.forEach(function(localStream) {
-            localStream.stop()
-        })
-
-        // close socket.io connection
-        connection.closeSocket()
-
-        connection.onstream = streamEvent => {
-            const otherPlayers = this.baseSceneManager.otherPlayers
-
-            connection.setCustomSocketEvent('updatePosition')
-            connection.socket.on('updatePosition', playerPosition => {
-                if(otherPlayers[playerPosition.player]) {
-                    otherPlayers[playerPosition.player].position.x = playerPosition.target._x
-                    otherPlayers[playerPosition.player].position.y = playerPosition.target._y
-                    otherPlayers[playerPosition.player].position.z = playerPosition.target._z
-                }
-            })
-
-            connection.setCustomSocketEvent('updateRotation')
-            connection.socket.on('updateRotation', playerRotation => {
-                if(playerRotation.target == 'left') {
-                    // otherPlayers[playerRotation.player].rotation.z += Math.PI / 66
-                    otherPlayers[playerRotation.player].rotation.y += Math.PI / 66
-                } else if(playerRotation.target == 'right') {
-                    // otherPlayers[playerRotation.player].rotation.z -= Math.PI / 66
-                    otherPlayers[playerRotation.player].rotation.y -= Math.PI / 66
-                }
-            })
-
-            connection.setCustomSocketEvent('updateSeatRotation')
-            connection.socket.on('updateSeatRotation', playerSeatRotation => {
-                switch (playerSeatRotation.target) {
-                    case 'E':
-                        otherPlayers[playerSeatRotation.player].rotation.y = 3 * Math.PI / 2
-                        break
-                    case 'W':
-                        otherPlayers[playerSeatRotation.player].rotation.y = Math.PI / 2
-                        break
-                }
-            })
-
-            this.addOneOnePlayer(streamEvent, 'meeting', scene)
-        }
-
-        const close = event => {
-            let player: BABYLON.Mesh
-            const otherPlayers = this.baseSceneManager.otherPlayers
-
-            if(event.type === 'local') {
-              player = this.baseSceneManager.myPlayer
-            } else {
-              player = otherPlayers[event.userid]
-            }
-
-            player.dispose()
-
-            if(event.type === 'local') {
-              this.baseSceneManager.myPlayer = null
-              clearInterval(this.baseSceneManager.positionBroadcasterID)
-              clearInterval(this.rotationBroadcastID)
-            } else {
-              delete otherPlayers[event.userid]
-            }
-        }
-
-        connection.onclose = close
-        connection.onstreamended = close
-
-        connection.openOrJoin('GV-MR_OneOne')
-    }
-
-    private load() {
-        const engine = this.baseSceneManager.engine
-        let dlCount = 0
-
-        BABYLON.SceneLoader.Load('/datas/gltf/MR/', 'OneOne.glb', engine,
-            scene => {
-                scene.executeWhenReady(async() => {
-                    // scene.forceWireframe = true
-                    // scene.forceShowBoundingBoxes = true
-                    // scene.debugLayer.show()
-
-                    /* const havokInstance = await HavokPhysics()
-                    const hk = new BABYLON.HavokPlugin(true, havokInstance)
-                    scene.enablePhysics(new BABYLON.Vector3(0, 0, 0), hk) */
-
-                    scene.createDefaultCamera(true, true, true)
-                    scene.createDefaultEnvironment({
-                        createGround: false,
-                        createSkybox: false
-                    })
-
-                    if (scene.activeCamera) {
-                      scene.activeCamera.attachControl(this.baseSceneManager.canvas)
-                      scene.activeCamera.alpha = 0
-                      scene.activeCamera.radius = 3.168
-                    }
-
-                    this.oneOneScene = scene
-
-                    engine.runRenderLoop(() => {
-                        this.oneOneScene.render()
-                    })
-
-                    this.enter(this.oneOneScene)
-                })
-            },
-            evt => {
-                if (evt.lengthComputable) {
-                  engine.loadingUIText =
-                    'Loading, please wait...' +
-                    ((evt.loaded * 100) / evt.total).toFixed() +
-                    '%'
-                } else {
-                  dlCount = evt.loaded / (1024 * 1024)
-                  engine.loadingUIText =
-                    'Loading, please wait...' +
-                    Math.floor(dlCount * 100.0) / 100.0 +
-                    ' MB already loaded.'
-                }
-            }
-        )
     }
 }

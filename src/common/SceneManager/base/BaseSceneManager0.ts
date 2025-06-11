@@ -6,7 +6,7 @@ import socketIO from '@src/assets/lib/socket.io'  // This line is pretty importa
 
 import { store } from '@src/store'
 
-import { FreeCameraKeyboardWalkInput } from './InputsControl'
+import { FreeCameraKeyboardWalkInput } from './KeyboardInputsControl'
 import { Position } from '@src/types/position'
 import { event } from 'quasar'
 

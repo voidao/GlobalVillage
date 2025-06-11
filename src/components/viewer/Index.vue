@@ -1,7 +1,7 @@
 <!--
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2022-01-04 16:12:47
- * @LastEditTime: 2025-03-24 16:53:04
+ * @LastEditTime: 2025-06-11 17:37:12
  * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\src\components\viewer\Index.vue
@@ -68,7 +68,7 @@ import zhCN from 'vue-cesium/es/locale/lang/zh-hans'
 import { ThemeOptions } from '@src/types/theme'
 import { VcNavigationOtherOpts } from 'vue-cesium/es/components/controls/navigation/defaultProps'
 import { VcReadyObject } from 'vue-cesium/es/utils/types'
-import BaseSceneManager from '@src/common/SceneManager/base/BaseSceneManager'
+import BaseSceneManager from '@src/common/SceneManager/base/BaseSceneManager1'
 import NamaqualandManager from '@src/common/SceneManager/namaqualand/NamaqualandManager'
 import WCafeManager from '@src/common/SceneManager/wcafe/WCafeManager'
 import IslandManager from '@src/common/SceneManager/island/IslandManager'
@@ -201,22 +201,72 @@ const onViewerReady = (readyObj: VcReadyObject) => {
     })
   }, 500)
 
-  // const sceneManager = new SceneManager(readyObj, canvas)
   // const sceneManager = new NamaqualandManager(readyObj, canvas)
-  // const sceneManager = new WCafeManager(readyObj, canvas)
-  const baseSceneManager = BaseSceneManager.getInstance(readyObj, canvas)
+  let baseSceneManager = new BaseSceneManager()
+  baseSceneManager.initialize(readyObj, canvas)
+  /* BaseSceneManager.createButton('@XiXiWetland', '30px', '106px', () => {
+    baseSceneManager.enterXiXiWetland()
+  }) */
   // const namaqualandManager = new NamaqualandManager(readyObj, canvas)
-  const islandManager = new IslandManager(readyObj, canvas)
-  const wCafeManager = new WCafeManager(readyObj, canvas)
+  // const islandManager = new IslandManager(readyObj, canvas)
+  BaseSceneManager.createButton('@Island', '3px', '60px', '86px', () => {
+    baseSceneManager.loadScene('/datas/gltf/Island/', 'island.glb', 'GV-Island', 'babylon', false, 0, 31.168)
+  })
+  /* const wCafeManager = new WCafeManager(readyObj, canvas)
   const salaManager = new MRSalaManager(readyObj, canvas)
   const oneOneManager = new MROneOneManager(readyObj, canvas)
-  const zugdidiManager = new ConZugdidiManager(readyObj, canvas)
+  const zugdidiManager = new ConZugdidiManager(readyObj, canvas) */
+  const wCafeManager = new WCafeManager()
+  BaseSceneManager.createButton('@WCafe', '3px', '95px', '86px', () => {
+    wCafeManager.loadScene('/datas/babylon/WCafe/', 'WCafe.babylon', 'GV-WCafe', 'wCafe', true)
+  })
+  BaseSceneManager.createModel('/datas/gltf/villa.glb', 1, {
+    LNG: 120.07 + 0.0003,
+    LAT: 30.27,
+    ALT: 0
+  })
+  BaseSceneManager.registerPickHandler('villa', canvas, () =>
+    wCafeManager.loadScene('/datas/babylon/WCafe/', 'WCafe.babylon', 'GV-WCafe', 'wCafe', true)
+  )
+
+  const salaManager = new MRSalaManager()
+  BaseSceneManager.createButton('@MR_Sala', '3px', '130px', '86px', () => {
+    salaManager.loadScene('/datas/gltf/MR/', 'Sala de jantar.glb', 'GV-MR_Sala', 'babylon', false, 0, 3.168)
+  })
+  BaseSceneManager.createModel('/datas/gltf/MR/Contemporary.glb', 1, {
+    LNG: 120.07 - 0.0006,
+    LAT: 30.27,
+    ALT: 0
+  })
+  BaseSceneManager.registerPickHandler('Contemporary', canvas, () =>
+    salaManager.loadScene('/datas/gltf/MR/', 'Sala de jantar.glb', 'GV-MR_Sala', 'babylon', false, 0, 3.168)
+  )
+
+  const oneOneManager = new MROneOneManager()
+  BaseSceneManager.createButton('@MR_OneOne', '3px', '165px', '106px', () => {
+    oneOneManager.loadScene('/datas/gltf/MR/', 'OneOne.glb', 'GV-MR_OneOne', 'babylon', false, 0, 3.168)
+  })
+  BaseSceneManager.createModel('/datas/gltf/MR/LowPolyHouse.glb', 1, {
+    LNG: 120.07,
+    LAT: 30.27,
+    ALT: 0
+  })
+  BaseSceneManager.registerPickHandler('LowPolyHouse', canvas, () =>
+    oneOneManager.loadScene('/datas/gltf/MR/', 'OneOne.glb', 'GV-MR_OneOne', 'babylon', false, 0, 3.168)
+  )
+
+  const zugdidiManager = new ConZugdidiManager()
+  BaseSceneManager.createButton('@Con_Zugdidi', '3px', '200px', '109px', () => {
+    zugdidiManager.loadScene('/datas/gltf/Con/', 'zugdidi.glb', 'GV-Con_Zugdidi', 'babylon', false, 0, 3.168)
+  })
 
   if (route.path.includes('/office/')) {
     const officeId = route.params.officeId
     setTimeout(() => {
       // alert('officeId: ' + route.params.officeId)
-      new OfficeManager(readyObj, canvas, officeId)
+      // new OfficeManager(readyObj, canvas, officeId)
+      const officeManager = new OfficeManager()
+      officeManager.loadScene('/datas/gltf/Office/', 'Office.glb', 'GV-Office-' + officeId, 'babylon', false, 0, 3.168)
     }, 6333)
   }
 }

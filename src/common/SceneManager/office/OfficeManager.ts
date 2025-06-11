@@ -1,216 +1,48 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
-import { VcReadyObject } from 'vue-cesium/es/utils/types'
-import BaseSceneManager from '../base/BaseSceneManager'
+import BaseSceneManager from '../base/BaseSceneManager1'
 import { registerBuiltInLoaders } from '@babylonjs/loaders/dynamic'
-import HavokPhysics from '@babylonjs/havok'
 
 registerBuiltInLoaders()
 
-export default class OfficeManager {
-    private baseSceneManager: BaseSceneManager
-    private officeScene: BABYLON.Scene
-    private rotationBroadcastID: number
+export default class OfficeManager extends BaseSceneManager {
 
-    constructor(vcReadyObj: VcReadyObject, canvas: HTMLCanvasElement, officeId: string) {
-        this.baseSceneManager = BaseSceneManager.getInstance(vcReadyObj, canvas)
-
-        // setTimeout(() => this.load(officeId), 6333)
-        this.load(officeId)
-    }
-
-    private enter(scene: BABYLON.Scene, officeId) {
-        const connection = this.baseSceneManager.RTCMC
-
-        // disconnect with all users
-        connection.getAllParticipants().forEach(function(pid) {
-            connection.disconnectWith(pid)
-        })
-
-        // stop all local cameras
-        connection.attachStreams.forEach(function(localStream) {
-            localStream.stop()
-        })
-
-        // close socket.io connection
-        connection.closeSocket()
-
-        connection.onstream = streamEvent => {
-            const otherPlayers = this.baseSceneManager.otherPlayers
-
-            connection.setCustomSocketEvent('updatePosition')
-            connection.socket.on('updatePosition', playerPosition => {
-                if(otherPlayers[playerPosition.player]) {
-                    otherPlayers[playerPosition.player].position.x = playerPosition.target._x
-                    otherPlayers[playerPosition.player].position.y = playerPosition.target._y
-                    otherPlayers[playerPosition.player].position.z = playerPosition.target._z
-                }
-            })
-
-            connection.setCustomSocketEvent('updateRotation')
-            connection.socket.on('updateRotation', playerRotation => {
-                if(playerRotation.target == 'left') {
-                    // otherPlayers[playerRotation.player].rotation.z += Math.PI / 66
-                    otherPlayers[playerRotation.player].rotation.y += Math.PI / 66
-                } else if(playerRotation.target == 'right') {
-                    // otherPlayers[playerRotation.player].rotation.z -= Math.PI / 66
-                    otherPlayers[playerRotation.player].rotation.y -= Math.PI / 66
-                }
-            })
-
-            connection.setCustomSocketEvent('updateSeatRotation')
-            connection.socket.on('updateSeatRotation', playerSeatRotation => {
-                switch (playerSeatRotation.target) {
-                    case 'E':
-                        otherPlayers[playerSeatRotation.player].rotation.y = 0
-                        break
-                    case 'W':
-                        otherPlayers[playerSeatRotation.player].rotation.y = Math.PI
-                        break
-                    case 'N':
-                        otherPlayers[playerSeatRotation.player].rotation.y = 3 * Math.PI / 2
-                        break
-                    case 'S':
-                        otherPlayers[playerSeatRotation.player].rotation.y = Math.PI / 2
-                        break
-                    case 'NW':
-                        otherPlayers[playerSeatRotation.player].rotation.y = 7.3 * Math.PI / 6
-                        break
-                    case 'SE':
-                        otherPlayers[playerSeatRotation.player].rotation.y = - Math.PI / 6
-                        break
-                    case 'SW':
-                        otherPlayers[playerSeatRotation.player].rotation.y = Math.PI / 6
-                        break
-                }
-            })
-
-            this.addOfficePlayer(streamEvent, 'meeting', scene)
-        }
-
-        const close = event => {
-            let player: BABYLON.Mesh
-            const otherPlayers = this.baseSceneManager.otherPlayers
-
-            if(event.type === 'local') {
-              player = this.baseSceneManager.myPlayer
-            } else {
-              player = otherPlayers[event.userid]
-            }
-
-            player.dispose()
-
-            if(event.type === 'local') {
-              this.baseSceneManager.myPlayer = null
-              clearInterval(this.baseSceneManager.positionBroadcasterID)
-              clearInterval(this.rotationBroadcastID)
-            } else {
-              delete otherPlayers[event.userid]
-            }
-        }
-        connection.onclose = close
-        connection.onstreamended = close
-
-        connection.openOrJoin('GV-Office-' + officeId)
-    }
-
-    private load(officeId: string) {
-        const engine = this.baseSceneManager.engine
-        let dlCount = 0
-
-        BABYLON.SceneLoader.Load('/datas/gltf/Office/', 'Office.glb', engine,
-            scene => {
-                scene.executeWhenReady(async() => {
-                    // scene.forceWireframe = true
-                    // scene.forceShowBoundingBoxes = true
-                    // scene.debugLayer.show()
-
-                    /* const havokInstance = await HavokPhysics()
-                    const hk = new BABYLON.HavokPlugin(true, havokInstance)
-                    scene.enablePhysics(new BABYLON.Vector3(0, 0, 0), hk) */
-
-                    scene.createDefaultCamera(true, true, true)
-                    scene.createDefaultEnvironment({
-                        createGround: false,
-                        createSkybox: false
-                    })
-
-                    if (scene.activeCamera) {
-                      scene.activeCamera.attachControl(this.baseSceneManager.canvas)
-                      scene.activeCamera.alpha = 0
-                      scene.activeCamera.radius = 3.168
-                    }
-
-                    this.officeScene = scene
-
-                    engine.runRenderLoop(() => {
-                        this.officeScene.render()
-                    })
-
-                    this.enter(this.officeScene, officeId)
-                })
-            },
-            evt => {
-                if (evt.lengthComputable) {
-                  engine.loadingUIText =
-                    'Loading, please wait...' +
-                    ((evt.loaded * 100) / evt.total).toFixed() +
-                    '%'
-                } else {
-                  dlCount = evt.loaded / (1024 * 1024)
-                  engine.loadingUIText =
-                    'Loading, please wait...' +
-                    Math.floor(dlCount * 100.0) / 100.0 +
-                    ' MB already loaded.'
-                }
-            }
-        )
-    }
-
-    private updateSeatRotation(direction: string) {
-        this.baseSceneManager.RTCMC.socket.emit('updateSeatRotation', {
-            player: this.baseSceneManager.myPlayer.id,
-            target: direction
-        })
-    }
-
-    private async addOfficePlayer(streamEvent: any, sceneType: string, scene?: BABYLON.Scene) {
-        // const videoFigure: BABYLON.Mesh = this.baseSceneManager.createVideoFigure(streamEvent, sceneType, scene)
-        const videoFigure: BABYLON.Mesh = await this.baseSceneManager.createVideoFigure1(streamEvent, sceneType, scene)
+    public async addPlayer(streamEvent: any, sceneType: string, scene?: BABYLON.Scene) {
+        const videoFigure: BABYLON.Mesh = await BaseSceneManager.createVideoFigure(streamEvent, sceneType, scene)
 
         if(streamEvent.type === 'local') {
           videoFigure.position = new BABYLON.Vector3(-1 - Math.random(), 2.693, 3.316 - Math.random())
 
-          this.baseSceneManager.myPlayer = videoFigure
-          this.baseSceneManager.myPlayer.parent = this.officeScene.activeCamera
+          BaseSceneManager.myPlayer = videoFigure
+          BaseSceneManager.myPlayer.parent = BaseSceneManager.scene.activeCamera
 
-          this.baseSceneManager.positionBroadcasterID = setInterval(() => {
-            if(this.baseSceneManager.RTCMC) {
-              this.baseSceneManager.updatePosition()
+          BaseSceneManager.positionBroadcasterID = setInterval(() => {
+            if(BaseSceneManager.RTCMC) {
+              BaseSceneManager.updatePosition()
             }
           }, 333)
 
-          this.officeScene.onPointerObservable.add((event => {
+          BaseSceneManager.scene.onPointerObservable.add((event => {
             if (event.pickInfo.pickedMesh) {
                 const pickedMesh = event.pickInfo.pickedMesh
                 // alert('Picked Seat: ' + pickedMesh.name)
 
-                const myPlayer = this.baseSceneManager.myPlayer
+                const myPlayer = BaseSceneManager.myPlayer
                 myPlayer.parent = null
                 myPlayer.position.y = 1.816
 
-                const camera = this.officeScene.activeCamera
+                const camera = BaseSceneManager.scene.activeCamera
 
-                if (this.rotationBroadcastID) {
-                    clearInterval(this.rotationBroadcastID)
+                if (BaseSceneManager.rotationBroadcastID) {
+                    clearInterval(BaseSceneManager.rotationBroadcastID)
                 }
 
                 if (pickedMesh.name.includes('Cube.042') || pickedMesh.name.includes('Cube.043') || pickedMesh.name.includes('Cube.044')) {
                     myPlayer.position.x = pickedMesh.parent.position.x - 3.58
                     myPlayer.position.z = pickedMesh.parent.position.z + 5.56
                     myPlayer.rotation.y = 7.3 * Math.PI / 6
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('NW')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('NW')
                         }
                     }, 333)
 
@@ -230,9 +62,9 @@ export default class OfficeManager {
                     myPlayer.position.x = pickedMesh.parent.position.x - 3.18
                     myPlayer.position.z = pickedMesh.parent.position.z + 7.85
                     myPlayer.rotation.y = 3 * Math.PI / 2
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('N')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('N')
                         }
                     }, 333)
 
@@ -252,9 +84,9 @@ export default class OfficeManager {
                     myPlayer.position.x = pickedMesh.parent.position.x - 0.36
                     myPlayer.position.z = pickedMesh.parent.position.z + 7.86
                     myPlayer.rotation.y = Math.PI / 2
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('S')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('S')
                         }
                     }, 333)
 
@@ -268,9 +100,9 @@ export default class OfficeManager {
                     myPlayer.position.x = pickedMesh.parent.position.x - 0.36
                     myPlayer.position.z = pickedMesh.parent.position.z + 6.26
                     myPlayer.rotation.y = Math.PI / 2
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('S')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('S')
                         }
                     }, 333)
 
@@ -284,9 +116,9 @@ export default class OfficeManager {
                     myPlayer.position.x = pickedMesh.parent.position.x + 1.63
                     myPlayer.position.z = pickedMesh.parent.position.z + 6.16
                     myPlayer.rotation.y = 3 * Math.PI / 2
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('N')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('N')
                         }
                     }, 333)
 
@@ -300,9 +132,9 @@ export default class OfficeManager {
                     myPlayer.position.x = pickedMesh.parent.position.x + 1.63
                     myPlayer.position.z = pickedMesh.parent.position.z + 7.81
                     myPlayer.rotation.y = 3 * Math.PI / 2
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('N')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('N')
                         }
                     }, 333)
 
@@ -316,9 +148,9 @@ export default class OfficeManager {
                     myPlayer.position.x = pickedMesh.parent.position.x + 4.89
                     myPlayer.position.z = pickedMesh.parent.position.z + 6.16
                     myPlayer.rotation.y = Math.PI / 2
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('S')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('S')
                         }
                     }, 333)
 
@@ -332,9 +164,9 @@ export default class OfficeManager {
                     myPlayer.position.x = pickedMesh.parent.position.x + 4.89
                     myPlayer.position.z = pickedMesh.parent.position.z + 7.83
                     myPlayer.rotation.y = Math.PI / 2
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('S')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('S')
                         }
                     }, 333)
 
@@ -348,9 +180,9 @@ export default class OfficeManager {
                     myPlayer.position.x = pickedMesh.parent.position.x + 3.83
                     myPlayer.position.z = pickedMesh.parent.position.z - 3.36
                     myPlayer.rotation.y = Math.PI
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('W')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('W')
                         }
                     }, 333)
 
@@ -364,9 +196,9 @@ export default class OfficeManager {
                     myPlayer.position.x = pickedMesh.parent.position.x + 2.53
                     myPlayer.position.z = pickedMesh.parent.position.z - 3.36
                     myPlayer.rotation.y = Math.PI
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('W')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('W')
                         }
                     }, 333)
 
@@ -380,9 +212,9 @@ export default class OfficeManager {
                     myPlayer.position.x = pickedMesh.parent.position.x + 1.23
                     myPlayer.position.z = pickedMesh.parent.position.z - 3.36
                     myPlayer.rotation.y = Math.PI
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('W')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('W')
                         }
                     }, 333)
 
@@ -396,9 +228,9 @@ export default class OfficeManager {
                     myPlayer.position.x = pickedMesh.parent.position.x + 5.08
                     myPlayer.position.z = pickedMesh.parent.position.z - 3.36
                     myPlayer.rotation.y = Math.PI
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('W')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('W')
                         }
                     }, 333)
 
@@ -412,9 +244,9 @@ export default class OfficeManager {
                     myPlayer.position.x = pickedMesh.parent.position.x + 2.49
                     myPlayer.position.z = pickedMesh.parent.position.z - 1.06
                     myPlayer.rotation.y = 0
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('E')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('E')
                         }
                     }, 333)
 
@@ -428,9 +260,9 @@ export default class OfficeManager {
                     myPlayer.position.x = pickedMesh.parent.position.x + 3.76
                     myPlayer.position.z = pickedMesh.parent.position.z - 1.06
                     myPlayer.rotation.y = 0
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('E')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('E')
                         }
                     }, 333)
 
@@ -444,9 +276,9 @@ export default class OfficeManager {
                     myPlayer.position.x = pickedMesh.parent.position.x + 5.09
                     myPlayer.position.z = pickedMesh.parent.position.z - 1.06
                     myPlayer.rotation.y = 0
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('E')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('E')
                         }
                     }, 333)
 
@@ -460,9 +292,9 @@ export default class OfficeManager {
                     myPlayer.position.x = pickedMesh.parent.position.x + 1.23
                     myPlayer.position.z = pickedMesh.parent.position.z - 1.06
                     myPlayer.rotation.y = 0
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('E')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('E')
                         }
                     }, 333)
 
@@ -476,9 +308,9 @@ export default class OfficeManager {
                     myPlayer.position.x = pickedMesh.parent.position.x - 13.33
                     myPlayer.position.z = pickedMesh.parent.position.z + 1.03
                     myPlayer.rotation.y = - Math.PI / 6
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('SE')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('SE')
                         }
                     }, 333)
 
@@ -492,9 +324,9 @@ export default class OfficeManager {
                     myPlayer.position.x = pickedMesh.parent.position.x - 12.43
                     myPlayer.position.z = pickedMesh.parent.position.z + 1.23
                     myPlayer.rotation.y = 0
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('E')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('E')
                         }
                     }, 333)
 
@@ -508,9 +340,9 @@ export default class OfficeManager {
                     myPlayer.position.x = pickedMesh.parent.position.x - 11.53
                     myPlayer.position.z = pickedMesh.parent.position.z + 1.03
                     myPlayer.rotation.y = Math.PI / 6
-                    this.rotationBroadcastID = setInterval(() => {
-                        if(this.baseSceneManager.RTCMC) {
-                            this.updateSeatRotation('SW')
+                    BaseSceneManager.rotationBroadcastID = setInterval(() => {
+                        if(BaseSceneManager.RTCMC) {
+                            BaseSceneManager.updateSeatRotation('SW')
                         }
                     }, 333)
 
@@ -526,16 +358,16 @@ export default class OfficeManager {
           }), BABYLON.PointerEventTypes.POINTERDOUBLETAP)
         } else {
           videoFigure.position = new BABYLON.Vector3(-1, 0.327, 0.316)
-          this.baseSceneManager.otherPlayers[videoFigure.id] = videoFigure
+          BaseSceneManager.otherPlayers[videoFigure.id] = videoFigure
         }
 
         /* const videoFigureAggregate = new BABYLON.PhysicsAggregate(videoFigure,
             BABYLON.PhysicsShapeType.CYLINDER,
             {mass: 1, restitution: 0.75},
-            this.salaScene)
+            BaseSceneManager.salaScene)
         videoFigureAggregate.body.disablePreStep = false
 
-        let joint = new BABYLON.DistanceConstraint(0.8, this.salaScene)
+        let joint = new BABYLON.DistanceConstraint(0.8, BaseSceneManager.salaScene)
 
         videoFigureAggregate.body.setMassProperties( {inertia: new BABYLON.Vector3(0, 0, 0) } )  // So that the body won't rotate.
 
