@@ -1,7 +1,7 @@
 <!--
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2022-01-04 16:12:47
- * @LastEditTime: 2025-06-11 17:37:12
+ * @LastEditTime: 2025-06-13 16:12:49
  * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\src\components\viewer\Index.vue
@@ -201,21 +201,13 @@ const onViewerReady = (readyObj: VcReadyObject) => {
     })
   }, 500)
 
-  // const sceneManager = new NamaqualandManager(readyObj, canvas)
   let baseSceneManager = new BaseSceneManager()
   baseSceneManager.initialize(readyObj, canvas)
-  /* BaseSceneManager.createButton('@XiXiWetland', '30px', '106px', () => {
-    baseSceneManager.enterXiXiWetland()
-  }) */
-  // const namaqualandManager = new NamaqualandManager(readyObj, canvas)
-  // const islandManager = new IslandManager(readyObj, canvas)
+
   BaseSceneManager.createButton('@Island', '3px', '60px', '86px', () => {
     baseSceneManager.loadScene('/datas/gltf/Island/', 'island.glb', 'GV-Island', 'babylon', false, 0, 31.168)
   })
-  /* const wCafeManager = new WCafeManager(readyObj, canvas)
-  const salaManager = new MRSalaManager(readyObj, canvas)
-  const oneOneManager = new MROneOneManager(readyObj, canvas)
-  const zugdidiManager = new ConZugdidiManager(readyObj, canvas) */
+
   const wCafeManager = new WCafeManager()
   BaseSceneManager.createButton('@WCafe', '3px', '95px', '86px', () => {
     wCafeManager.loadScene('/datas/babylon/WCafe/', 'WCafe.babylon', 'GV-WCafe', 'wCafe', true)

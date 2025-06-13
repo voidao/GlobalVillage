@@ -103,23 +103,6 @@ export default class BaseSceneManager{
     }, 3000)
   }
 
-  public enterXiXiWetland() {
-    this.enter('GV-XiXiWetland', 'XiXiWetland')
-
-    BaseSceneManager.vcReadyObj.viewer.camera.flyTo({
-      destination: BaseSceneManager.vcReadyObj.Cesium.Cartesian3.fromDegrees(120.07, 30.27 - 0.003, 60),
-      orientation: {
-        heading: BaseSceneManager.vcReadyObj.Cesium.Math.toRadians(0.0),
-        pitch: BaseSceneManager.vcReadyObj.Cesium.Math.toRadians(-10.0)
-      }
-    })
-
-    /* alert('Setting to XiXiWetland position...')
-    BaseSceneManager.myPlayer.position = new BABYLON.Vector3(120.07  - 230 * Math.random(), 30.27  - 180 * Math.random(), 60) */
-
-    // BaseSceneManager.runRenderLoop()
-  }
-
   private static closeRTC(event: any) {
     let player: BABYLON.Mesh
 
@@ -218,7 +201,14 @@ export default class BaseSceneManager{
         }
     })
 
-     await this.addPlayer(streamEvent, sceneType, scene)
+    if (streamEvent.type === 'local') {
+      const user = store.system.useUserStore()
+      const userName = user.info?.username || user.info?.user_metadata?.name || 'Guest'
+
+      streamEvent.extra.userName = userName
+    }
+
+    await this.addPlayer(streamEvent, sceneType, scene)
   }
 
   private static initRTC() {
@@ -381,28 +371,6 @@ export default class BaseSceneManager{
     BaseSceneManager.scene = scene
     BaseSceneManager.camera = camera
 
-    /* this.createButton('@XiXiWetland', '30px', '106px', () => {
-        this.enter('GV-XiXiWetland', 'cesium')
-
-        this.base_point = BaseSceneManager.cart2vec(this.vcReadyObj.Cesium.Cartesian3.fromDegrees(120.07, 30.27, 50))
-        this.base_point_up = BaseSceneManager.cart2vec(this.vcReadyObj.Cesium.Cartesian3.fromDegrees(120.07, 30.27, 300))
-
-        this.root_node.lookAt(this.base_point_up.subtract(this.base_point))
-        this.root_node.addRotation(Math.PI / 2, 0, 0)
-
-        this.vcReadyObj.viewer.camera.flyTo({
-            destination : this.vcReadyObj.Cesium.Cartesian3.fromDegrees(120.07, 30.27 - 0.003, 60),
-            orientation : {
-                heading : this.vcReadyObj.Cesium.Math.toRadians(0.0),
-                pitch : this.vcReadyObj.Cesium.Math.toRadians(-10.0)
-            }
-        })
-
-        this.myPlayer.position = new BABYLON.Vector3(120.07  - 230 * Math.random(), 30.27  - 180 * Math.random(), 60)
-
-        this.runRenderLoop()
-    }) */
-
     BaseSceneManager.runRenderLoop()
   }
 
@@ -551,33 +519,32 @@ export default class BaseSceneManager{
     const sphereCSG = BABYLON.CSG2.FromMesh(sphere)
     const videoFigureBackCSG = sphereCSG.subtract(removalCSG)
     const videoFigureBack = videoFigureBackCSG.toMesh('videoFigureBack')
-      const videoFigureBackMat = new BABYLON.StandardMaterial('mVideoFigureBack', scene)
-      videoFigureBackMat.emissiveColor = BABYLON.Color3.Gray()
-      videoFigureBack.material = videoFigureBackMat
-      videoFigureBack.position.z = 0.26 / divisor
-      videoFigureBack.rotation.z = Math.PI / 2
-      videoFigureBack.rotation.y = Math.PI / 2
+    const videoFigureBackMat = new BABYLON.StandardMaterial('mVideoFigureBack', scene)
+    videoFigureBackMat.emissiveColor = BABYLON.Color3.Gray()
+    videoFigureBack.material = videoFigureBackMat
+    videoFigureBack.position.z = 0.26 / divisor
+    videoFigureBack.rotation.z = Math.PI / 2
+    videoFigureBack.rotation.y = Math.PI / 2
 
-      const user = store.system.useUserStore()
-      const myName = user.info?.username || user.info?.user_metadata?.name || 'Guest'
-      const fontData = await (await fetch('https://assets.babylonjs.com/fonts/Droid Sans_Regular.json')).json()
-      const myText = BABYLON.MeshBuilder.CreateText('myText', myName, fontData, {
-            size: 3.9 / divisor,
-            resolution: 6,
-            depth: 0.3 / divisor,
-            // faceColors: [new BABYLON.Color4(1, 1, 1)]
-        },
-        scene,
-        earcut
-      )
-      myText.rotation.z = Math.PI
-      const myTextMat = new BABYLON.StandardMaterial('mMyText', scene)
-      myTextMat.emissiveColor = BABYLON.Color3.White()
-      myText.material = myTextMat
-      const myText1 = myText.clone('myText1')
-      myText.position.y = 23 / divisor
-      myText1.position.z = 5.6 / divisor
-      myText1.rotation.y = Math.PI
+    const userName = streamEvent.extra.userName
+    const fontData = await (await fetch('https://assets.babylonjs.com/fonts/Droid Sans_Regular.json')).json()
+    const myText = BABYLON.MeshBuilder.CreateText('myText', userName, fontData, {
+          size: 3.9 / divisor,
+          resolution: 6,
+          depth: 0.3 / divisor,
+          // faceColors: [new BABYLON.Color4(1, 1, 1)]
+      },
+      scene,
+      earcut
+    )
+    myText.rotation.z = Math.PI
+    const myTextMat = new BABYLON.StandardMaterial('mMyText', scene)
+    myTextMat.emissiveColor = BABYLON.Color3.White()
+    myText.material = myTextMat
+    const myText1 = myText.clone('myText1')
+    myText.position.y = 23 / divisor
+    myText1.position.z = 5.6 / divisor
+    myText1.rotation.y = Math.PI
 
     const videoFigureWhole = BABYLON.Mesh.MergeMeshes([myText, myText1, sphere1, mPipe, videoFigure, videoFigureBack], false, true, undefined, true, true)
 
@@ -625,10 +592,7 @@ export default class BaseSceneManager{
     if(streamEvent.type === 'local') {
       if(sceneType === 'cesium') {
         // alert('Setting to default position...')
-        videoFigure.position = new BABYLON.Vector3(BaseSceneManager.defaultPosition.LNG - 230 * Math.random(), BaseSceneManager.defaultPosition.LAT - 180 * Math.random(), BaseSceneManager.defaultPosition.ALT)
-      } else if(sceneType === 'XiXiWetland') {
-        // alert('Setting to XiXiWetland position...')
-        videoFigure.position = new BABYLON.Vector3(120.07  - 230 * Math.random(), 30.27  - 180 * Math.random(), 60)
+        videoFigure.position = new BABYLON.Vector3(BaseSceneManager.defaultPosition.LNG - 230 * Math.random(), BaseSceneManager.defaultPosition.LAT - 80 * Math.random(), BaseSceneManager.defaultPosition.ALT)
       } else {
         videoFigure.position = new BABYLON.Vector3(1.08 - 3 * Math.random(), 3.33, 1.27 - 3 * Math.random())
       }
