@@ -1,44 +1,51 @@
-<!--
- * @Author: zouyaoji@https://github.com/zouyaoji
- * @Date: 2022-05-25 14:53:30
- * @LastEditTime: 2022-07-23 00:31:33
- * @LastEditors: zouyaoji
- * @Description:
- * @FilePath: \vue-cesium-demo\README.md
--->
+# Global Village
 
-# vue-cesium-demo
+## Vision | [简体中文](./README.zh.md)
 
-## About | [简体中文](./README.zh.md)
+<a href="https://edening.org" target="_blank"><img src="https://github.com/voidao/GlobalVillage/blob/main/public/Edening.png" style="height:333px;" /></a>
 
-This project is a completely **open source free** front-end integration solution for VueCesium, using the latest front-end technology stack. The basic preparatory work in the early stage of the project has been done, and the sample code is attached to help the rapid development of the 3D WebGIS project.
+>  **『Edening: A Global Village of Happier Citizens』**
 
-This template should help get you started developing with Vue and Typescript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+* Citizen(Happier)
+* Village(Global)
+* Oneness(Whole)
 
-## Recommended IDE Setup
+We have a dream, a pursuit, a world getting better and better.
 
+In this world, sea and sky are blue, air and water are pure.
+
+In this world, people are happy, society is harmony, everything evolves effectively.
+
+In this world, people are rarely forced to commute, no longer separated by distance, and traveling only because they really want or have to go somewhere. No over-production, no starvation and poverty any longer, the exploitation and usage of resources are balanced and reasonable, survival and safety are fully protected, love and belonging are satisfied, people are mostly pursuing things for self-actualization.
+
+For such a wonderful world, people's time and energy need to be sufficiently released, and the whole world needs to keep evolving into one single intelligent being as the legendary Gaia.
+
+## Development
+- `npm install`  |  `npm run dev`
+- [RTCMultiConnection-Server](https://github.com/voidao/RTCMultiConnection-Server)
 - [VSCode](https://code.visualstudio.com/) + recommended extensions in the project.
 
 ## Features
 
-- build with vite
-- multiple themes
-- i18n
-- login and logout
-- pinia state management
-- layer management
+- @XiXiWetland by default.
+- Login using the default account or social network accounts.
+- Meet people in @XiXiWetland Global Village by double-clicking the buildings.
+- Or in the public spaces by clicking the buttons at the top left corner.
+- Move and turn around using the arrow keys.
+- Change your perspective using the mouse operations.
+- Double click the seats to sit in some scenes.
 
 ## Todo
 
-- ~~Dynamic rendering~~
-- Measurement drawing
-- Flight management
+- Screen Sharing
+- Game Bar Scene
+- Continuous Improvement
 
-## Donation
+## Sponsorship
 
-- <a href="https://www.paypal.me/zouyaoji" target="_blank"><img src="https://zouyaoji.top/vue-cesium/images/paypal.png" style="height:25px;" /></a>
+- <a href="https://www.paypal.com/paypalme/mahaofeng" target="_blank"><img src="https://github.com/voidao/GlobalVillage/blob/main/public/paypal.png" style="height:33px;" /></a>
 - WeChat / AliPay
   <div style="display: flex">
-    <img alt="wechat" title="wechat" src="https://zouyaoji.top/vue-cesium/images/wechat.png">
-    <img alt="alipay" title="alipay" src="https://zouyaoji.top/vue-cesium/images/alipay.png">
+    <img alt="wechat" title="wechat" src="https://github.com/voidao/GlobalVillage/blob/main/public/wechat.JPG" style="height:168px;width:99px;" >
+    <img alt="alipay" title="alipay" src="https://github.com/voidao/GlobalVillage/blob/main/public/alipay.JPG" style="height:168px;width:99px;" >
   </div>
