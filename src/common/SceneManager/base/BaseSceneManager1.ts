@@ -12,6 +12,10 @@ import { event } from 'quasar'
 
 import earcut from 'earcut'
 
+import { registerBuiltInLoaders } from '@babylonjs/loaders/dynamic'
+
+registerBuiltInLoaders()
+
 export default class BaseSceneManager{
   public static vcReadyObj: VcReadyObject
   public static base_point: BABYLON.Vector3
@@ -600,6 +604,9 @@ export default class BaseSceneManager{
       BaseSceneManager.myPlayer = videoFigure
       BaseSceneManager.myPlayer.parent = BaseSceneManager.camera
 
+      if (BaseSceneManager.positionBroadcasterID) {
+          clearInterval(BaseSceneManager.positionBroadcasterID)
+      }
       BaseSceneManager.positionBroadcasterID = setInterval(() => {
         if(BaseSceneManager.RTCMC) {
           BaseSceneManager.updatePosition()
@@ -623,61 +630,53 @@ export default class BaseSceneManager{
     videoFigureAggregate.body.disablePreStep = false */
   }
 
-  public loadScene(path: string, sceneName: string, space: string, sceneType: string, enablePhysics: boolean, alpha?: number, radius?: number) {
+  public async loadScene(path: string, sceneName: string, space: string, sceneType: string, enablePhysics: boolean, alpha?: number, radius?: number) {
     let dlCount = 0
+    BaseSceneManager.scene = await BABYLON.LoadSceneAsync(path + sceneName, BaseSceneManager.engine, { name: 'currentScene', onProgress:
+      evt => {
+          if (evt.lengthComputable) {
+            BaseSceneManager.engine.loadingUIText =
+              'Loading, please wait...' +
+              ((evt.loaded * 100) / evt.total).toFixed() +
+              '%'
+          } else {
+            dlCount = evt.loaded / (1024 * 1024)
+            BaseSceneManager.engine.loadingUIText =
+              'Loading, please wait...' +
+              Math.floor(dlCount * 100.0) / 100.0 +
+              ' MB already loaded.'
+          }
+      }
+    })
 
-    BABYLON.SceneLoader.Load(path, sceneName, BaseSceneManager.engine,
-        scene => {
-            scene.executeWhenReady(async () => {
-                // scene.debugLayer.show()
-                if (enablePhysics) {
-                  const havokInstance = await HavokPhysics()
-                    const hk = new BABYLON.HavokPlugin(true, havokInstance)
-                    scene.enablePhysics(new BABYLON.Vector3(0, 0, 0), hk)
-                }
+    // scene.debugLayer.show()
+    if (enablePhysics) {
+      const havokInstance = await HavokPhysics()
+        const hk = new BABYLON.HavokPlugin(true, havokInstance)
+        BaseSceneManager.scene.enablePhysics(new BABYLON.Vector3(0, 0, 0), hk)
+    }
 
-                if (sceneType !== 'wCafe') {
-                  scene.createDefaultCamera(true, true, true)
-                  scene.createDefaultEnvironment({
-                      createGround: false,
-                      createSkybox: false
-                  })
-                }
+    if (sceneType !== 'wCafe') {
+      BaseSceneManager.scene.createDefaultCamera(true, true, true)
+      /* BaseSceneManager.scene.createDefaultEnvironment({
+          createGround: false,
+          createSkybox: false
+      }) */
+      const hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData('/datas/textures/environment.dds', BaseSceneManager.scene)
+      const currentSkybox = BaseSceneManager.scene.createDefaultSkybox(hdrTexture, true)
+    }
 
-                if (scene.activeCamera) {
-                  scene.activeCamera.attachControl(BaseSceneManager.canvas)
-                  if (alpha == 0 || alpha) {
-                    scene.activeCamera.alpha = alpha
-                  }
-                  if (radius) {
-                    scene.activeCamera.radius = radius
-                  }
-                }
+    if (BaseSceneManager.scene.activeCamera) {
+      BaseSceneManager.scene.activeCamera.attachControl(BaseSceneManager.canvas)
+      if (alpha == 0 || alpha) {
+        BaseSceneManager.scene.activeCamera.alpha = alpha
+      }
+      if (radius) {
+        BaseSceneManager.scene.activeCamera.radius = radius
+      }
+    }
 
-                BaseSceneManager.engine.runRenderLoop(() => {
-                    scene.render()
-                })
-
-                this.enter(space, sceneType, scene)
-
-                BaseSceneManager.scene = scene
-            })
-        },
-        evt => {
-            if (evt.lengthComputable) {
-              BaseSceneManager.engine.loadingUIText =
-                'Loading, please wait...' +
-                ((evt.loaded * 100) / evt.total).toFixed() +
-                '%'
-            } else {
-              dlCount = evt.loaded / (1024 * 1024)
-              BaseSceneManager.engine.loadingUIText =
-                'Loading, please wait...' +
-                Math.floor(dlCount * 100.0) / 100.0 +
-                ' MB already loaded.'
-            }
-        }
-    )
+    this.enter(space, sceneType, BaseSceneManager.scene)
   }
 
   public static createButton(space: string, left: string, top: string, width: string, clickCallBack: () => void) {

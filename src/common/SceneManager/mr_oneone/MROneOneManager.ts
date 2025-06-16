@@ -2,15 +2,12 @@
  * @Author: Henry Ma henryma@edening.cn
  * @Date: 2025-06-05 12:22:39
  * @LastEditors: Henry Ma henryma@edening.cn
- * @LastEditTime: 2025-06-11 16:12:11
+ * @LastEditTime: 2025-06-16 15:39:15
  * @FilePath: /GlobalVillage/src/common/SceneManager/mr_oneone/MROneOneManager.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import BaseSceneManager from '@src/common/SceneManager/base/BaseSceneManager1'
-import { registerBuiltInLoaders } from '@babylonjs/loaders/dynamic'
-
-registerBuiltInLoaders()
 
 export default class MROneOneManager extends BaseSceneManager{
 
@@ -23,6 +20,9 @@ export default class MROneOneManager extends BaseSceneManager{
           BaseSceneManager.myPlayer = videoFigure
           BaseSceneManager.myPlayer.parent = BaseSceneManager.camera
 
+          if (BaseSceneManager.positionBroadcasterID) {
+            clearInterval(BaseSceneManager.positionBroadcasterID)
+          }
           BaseSceneManager.positionBroadcasterID = setInterval(() => {
             if(BaseSceneManager.RTCMC) {
                 BaseSceneManager.updatePosition()

@@ -1,10 +1,5 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
-import { VcReadyObject } from 'vue-cesium/es/utils/types'
 import BaseSceneManager from '../base/BaseSceneManager1'
-import { registerBuiltInLoaders } from '@babylonjs/loaders/dynamic'
-import HavokPhysics from '@babylonjs/havok'
-
-registerBuiltInLoaders()
 
 export default class MRSalaManager extends BaseSceneManager{
 
@@ -17,6 +12,9 @@ export default class MRSalaManager extends BaseSceneManager{
           BaseSceneManager.myPlayer = videoFigure
           BaseSceneManager.myPlayer.parent = BaseSceneManager.scene.activeCamera
 
+          if (BaseSceneManager.positionBroadcasterID) {
+            clearInterval(BaseSceneManager.positionBroadcasterID)
+          }
           BaseSceneManager.positionBroadcasterID = setInterval(() => {
             if(BaseSceneManager.RTCMC) {
                 BaseSceneManager.updatePosition()

@@ -1,7 +1,7 @@
 <!--
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2022-01-04 16:12:47
- * @LastEditTime: 2025-06-13 16:12:49
+ * @LastEditTime: 2025-06-16 15:41:46
  * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\src\components\viewer\Index.vue
@@ -222,7 +222,7 @@ const onViewerReady = (readyObj: VcReadyObject) => {
   )
 
   const salaManager = new MRSalaManager()
-  BaseSceneManager.createButton('@MR_Sala', '3px', '130px', '86px', () => {
+  BaseSceneManager.createButton('@MR_Sala', '3px', '130px', '89px', () => {
     salaManager.loadScene('/datas/gltf/MR/', 'Sala de jantar.glb', 'GV-MR_Sala', 'babylon', false, 0, 3.168)
   })
   BaseSceneManager.createModel('/datas/gltf/MR/Contemporary.glb', 1, {
@@ -235,7 +235,7 @@ const onViewerReady = (readyObj: VcReadyObject) => {
   )
 
   const oneOneManager = new MROneOneManager()
-  BaseSceneManager.createButton('@MR_OneOne', '3px', '165px', '106px', () => {
+  BaseSceneManager.createButton('@MR_OneOne', '3px', '165px', '116px', () => {
     oneOneManager.loadScene('/datas/gltf/MR/', 'OneOne.glb', 'GV-MR_OneOne', 'babylon', false, 0, 3.168)
   })
   BaseSceneManager.createModel('/datas/gltf/MR/LowPolyHouse.glb', 1, {
@@ -248,7 +248,7 @@ const onViewerReady = (readyObj: VcReadyObject) => {
   )
 
   const zugdidiManager = new ConZugdidiManager()
-  BaseSceneManager.createButton('@Con_Zugdidi', '3px', '200px', '109px', () => {
+  BaseSceneManager.createButton('@Con_Zugdidi', '3px', '200px', '116px', () => {
     zugdidiManager.loadScene('/datas/gltf/Con/', 'zugdidi.glb', 'GV-Con_Zugdidi', 'babylon', false, 0, 3.168)
   })
 

@@ -2,15 +2,12 @@
  * @Author: Henry Ma henryma@edening.cn
  * @Date: 2025-06-06 16:37:12
  * @LastEditors: Henry Ma henryma@edening.cn
- * @LastEditTime: 2025-06-11 16:36:58
+ * @LastEditTime: 2025-06-16 15:39:27
  * @FilePath: /GlobalVillage/src/common/SceneManager/con/Con_ZugdidiManager.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import BaseSceneManager from '../base/BaseSceneManager1'
-import { registerBuiltInLoaders } from '@babylonjs/loaders/dynamic'
-
-registerBuiltInLoaders()
 
 export default class ConZugdidiManager extends BaseSceneManager{
 
@@ -23,6 +20,9 @@ export default class ConZugdidiManager extends BaseSceneManager{
           BaseSceneManager.myPlayer = videoFigure
           BaseSceneManager.myPlayer.parent = BaseSceneManager.scene.activeCamera
 
+          if (BaseSceneManager.positionBroadcasterID) {
+            clearInterval(BaseSceneManager.positionBroadcasterID)
+          }
           BaseSceneManager.positionBroadcasterID = setInterval(() => {
             if(BaseSceneManager.RTCMC) {
               BaseSceneManager.updatePosition()
@@ -38,6 +38,10 @@ export default class ConZugdidiManager extends BaseSceneManager{
                 // alert('Picked Seat: ' + event.pickInfo.pickedMesh.name)
 
                 BaseSceneManager.myPlayer.parent = null
+
+                if (BaseSceneManager.rotationBroadcastID) {
+                    clearInterval(BaseSceneManager.rotationBroadcastID)
+                }
 
                 if (event.pickInfo.pickedMesh.name.includes('Woman')) {
                     BaseSceneManager.myPlayer.position.x = 10.723 + 0.03

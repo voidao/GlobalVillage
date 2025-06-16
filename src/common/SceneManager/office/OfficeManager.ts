@@ -1,8 +1,5 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import BaseSceneManager from '../base/BaseSceneManager1'
-import { registerBuiltInLoaders } from '@babylonjs/loaders/dynamic'
-
-registerBuiltInLoaders()
 
 export default class OfficeManager extends BaseSceneManager {
 
@@ -15,6 +12,9 @@ export default class OfficeManager extends BaseSceneManager {
           BaseSceneManager.myPlayer = videoFigure
           BaseSceneManager.myPlayer.parent = BaseSceneManager.scene.activeCamera
 
+          if (BaseSceneManager.positionBroadcasterID) {
+            clearInterval(BaseSceneManager.positionBroadcasterID)
+          }
           BaseSceneManager.positionBroadcasterID = setInterval(() => {
             if(BaseSceneManager.RTCMC) {
               BaseSceneManager.updatePosition()
