@@ -1,8 +1,8 @@
 <!--
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2021-12-20 16:15:37
- * @LastEditTime: 2024-01-26 14:57:11
- * @LastEditors: zouyaoji 370681295@qq.com
+ * @LastEditTime: 2025-06-17 16:52:30
+ * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\src\layouts\header\Index.vue
 -->
@@ -45,10 +45,10 @@
       <header-fullscreen />
       <!-- <header-theme /> -->
       <header-locale />
-      <header-user />
-      <!-- <q-btn size="md" flat round color="#fff" @click="onNavigation">
+      <q-btn size="md" flat round color="#fff" @click="onNavigation">
         <q-icon name="fa fa-github"></q-icon>
-      </q-btn> -->
+      </q-btn>
+      <header-user />
     </div>
   </q-toolbar>
 </template>
@@ -126,7 +126,7 @@ onMounted(() => {
 })
 
 const onNavigation = () => {
-  openURL('https://github.com/zouyaoji/vue-cesium-demo')
+  openURL('https://github.com/voidao/GlobalVillage')
 }
 
 const onToggleLeftDrawer = () => {
