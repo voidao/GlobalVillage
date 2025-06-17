@@ -29,7 +29,8 @@ For such a wonderful world, people's time and energy need to be sufficiently rel
 
 - @XiXiWetland by default.
 - Login using the default account or social network accounts.
-- Meet people in @XiXiWetland Global Village by double-clicking the buildings.
+- Dedicated office after social network login, link@account@TopRightCorner.
+- Meet people in @XiXiWetland by double-clicking the buildings.
 - Or in the public spaces by clicking the buttons at the top left corner.
 - Move and turn around using the arrow keys.
 - Change your perspective using the mouse operations.
