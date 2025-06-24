@@ -1,7 +1,7 @@
 <!--
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2022-01-04 16:12:47
- * @LastEditTime: 2025-06-16 15:41:46
+ * @LastEditTime: 2025-06-24 18:49:39
  * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\src\components\viewer\Index.vue
@@ -47,6 +47,9 @@
       <slot />
     </vc-viewer>
   </vc-config-provider>
+  <div>
+    <video id="screen" autoplay></video>
+  </div>
 </template>
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
@@ -252,6 +255,10 @@ const onViewerReady = (readyObj: VcReadyObject) => {
     zugdidiManager.loadScene('/datas/gltf/Con/', 'zugdidi.glb', 'GV-Con_Zugdidi', 'babylon', false, 0, 3.168)
   })
 
+  BaseSceneManager.createButton('ShareScreen', '3px', '369px', '108px', () => {
+    baseSceneManager.shareScreen()
+  })
+
   if (route.path.includes('/office/')) {
     const officeId = route.params.officeId
     setTimeout(() => {
@@ -287,3 +294,14 @@ const onDestroyed = e => {
   // clearMouseOverlayLabel()
 }
 </script>
+<style lang="css">
+#screen {
+  border: 3px solid #999;
+  width: 86%;
+  /* max-width: 860px; */
+  position: absolute;
+  top: 60px;
+  display: none;
+  z-index: 333;
+}
+</style>

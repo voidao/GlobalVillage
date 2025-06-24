@@ -108,39 +108,44 @@ export default class BaseSceneManager{
   }
 
   private static closeRTC(event: any) {
-    let player: BABYLON.Mesh
+      const screenEle = document.getElementById('screen')
+      screenEle.style.display = 'none'
 
-    if(event.type === 'local') {
-      player = BaseSceneManager.myPlayer
-    } else {
-      player = BaseSceneManager.otherPlayers[event.userid]
-    }
+    if (!event.stream || !event.stream.isScreen) {
+      let player: BABYLON.Mesh
 
-    /* const videoEl = player.material.diffuseTexture.video
+      if(event.type === 'local') {
+        player = BaseSceneManager.myPlayer
+      } else {
+        player = BaseSceneManager.otherPlayers[event.userid]
+      }
 
-    // Remove any <source> elements, etc.
-    while (videoEl.firstChild) {
-        videoEl.removeChild(videoEl.lastChild);
-    }
+      /* const videoEl = player.material.diffuseTexture.video
 
-    // Set a blank src
-    videoEl.src = ''
+      // Remove any <source> elements, etc.
+      while (videoEl.firstChild) {
+          videoEl.removeChild(videoEl.lastChild);
+      }
 
-    // Prevent non-important errors in some browsers
-    videoEl.removeAttribute('src')
+      // Set a blank src
+      videoEl.src = ''
 
-    // Get certain browsers to let go
-    videoEl.load()
+      // Prevent non-important errors in some browsers
+      videoEl.removeAttribute('src')
 
-    videoEl.remove() */
+      // Get certain browsers to let go
+      videoEl.load()
 
-    player.dispose()
+      videoEl.remove() */
 
-    if(event.type === 'local') {
-      BaseSceneManager.myPlayer = null
-      clearInterval(BaseSceneManager.positionBroadcasterID)
-    } else {
-      delete BaseSceneManager.otherPlayers[event.userid]
+      player.dispose()
+
+      if(event.type === 'local') {
+        BaseSceneManager.myPlayer = null
+        clearInterval(BaseSceneManager.positionBroadcasterID)
+      } else {
+        delete BaseSceneManager.otherPlayers[event.userid]
+      }
     }
   }
 
@@ -212,7 +217,13 @@ export default class BaseSceneManager{
       streamEvent.extra.userName = userName
     }
 
-    await this.addPlayer(streamEvent, sceneType, scene)
+    if (streamEvent.type === 'remote' && streamEvent.stream.isScreen) {
+      const screenEle = document.getElementById('screen')
+      screenEle.style.display = 'block'
+      screenEle.srcObject = streamEvent.stream
+    } else if (!streamEvent.stream.isScreen) {
+      await this.addPlayer(streamEvent, sceneType, scene)
+    }
   }
 
   private static initRTC() {
@@ -235,6 +246,11 @@ export default class BaseSceneManager{
     connection.sdpConstraints.mandatory = {
         OfferToReceiveAudio: true,
         OfferToReceiveVideo: true
+    }
+
+    connection.mediaConstraints = {
+        video: true,
+        audio: true
     }
 
     // first step, ignore default STUN+TURN servers
@@ -595,8 +611,7 @@ export default class BaseSceneManager{
 
     if(streamEvent.type === 'local') {
       if(sceneType === 'cesium') {
-        // alert('Setting to default position...')
-        videoFigure.position = new BABYLON.Vector3(BaseSceneManager.defaultPosition.LNG - 230 * Math.random(), BaseSceneManager.defaultPosition.LAT - 80 * Math.random(), BaseSceneManager.defaultPosition.ALT)
+        videoFigure.position = new BABYLON.Vector3(BaseSceneManager.defaultPosition.LNG - 218 * Math.random(), BaseSceneManager.defaultPosition.LAT - 106 * Math.random(), BaseSceneManager.defaultPosition.ALT - 168 * Math.random())
       } else {
         videoFigure.position = new BABYLON.Vector3(1.08 - 3 * Math.random(), 3.33, 1.27 - 3 * Math.random())
       }
@@ -694,6 +709,25 @@ export default class BaseSceneManager{
     document.body.appendChild(button)
 
     button.addEventListener('click', clickCallBack)
+  }
+
+  public async shareScreen() {
+    /* const displayMediaOptions = {
+      video: {
+        displaySurface: 'window',
+      },
+      audio: false,
+    } */
+
+    // const screenStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
+    BaseSceneManager.RTCMC.addStream({
+        screen: true,
+        oneway: true,
+        streamCallback: function(stream) {
+          stream.isScreen = true
+          // alert('Screen is successfully captured: ' + stream.getVideoTracks().length)
+        }
+    })
   }
 
   public enter(space: string, sceneType: string, scene?: BABYLON.Scene) {
