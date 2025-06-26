@@ -1,8 +1,8 @@
 <!--
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2021-12-14 16:36:31
- * @LastEditTime: 2023-08-15 00:30:10
- * @LastEditors: zouyaoji 370681295@qq.com
+ * @LastEditTime: 2025-06-26 23:34:06
+ * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\src\layouts\MainLayout.vue
 -->
@@ -24,9 +24,9 @@
             clickable
             active-class="menu-active-item"
             :active="menuItem.name === currentRouteName"
-            @click="$router.push(menuItem.path)"
             :href="menuItem.href"
             :target="menuItem.target"
+            @click="$router.push(menuItem.path)"
           >
             <q-item-section avatar>
               <q-icon :name="menuItem.icon" />
@@ -188,8 +188,8 @@ onMounted(() => {
   ::v-deep(.q-drawer) {
     // height: 350px;
     height: fit-content;
-    top: 120px;
-    left: 12px;
+    top: 63px;
+    left: 118px;
   }
   ::v-deep(.q-drawer--left) {
     background: var(--themeQMenuBackgroundColor);
