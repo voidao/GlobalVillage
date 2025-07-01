@@ -1,7 +1,7 @@
 <!--
  * @Author: zouyaoji@https://github.com/zouyaoji
  * @Date: 2021-12-20 16:15:37
- * @LastEditTime: 2025-06-17 16:52:30
+ * @LastEditTime: 2025-07-01 11:06:10
  * @LastEditors: Henry Ma henryma@edening.cn
  * @Description:
  * @FilePath: \vue-cesium-demo\src\layouts\header\Index.vue
@@ -13,9 +13,7 @@
       <img src="https://zouyaoji.top/vue-cesium/favicon.png" />
     </q-avatar>
 
-    <q-toolbar-title :shrink="true" style="width: 280px; font-weight: bold; text-align: left">{{
-      title
-    }}</q-toolbar-title>
+    <q-toolbar-title :shrink="true" style="width: 280px; font-weight: bold; text-align: left">Edening</q-toolbar-title>
     <div class="menu-container">
       <q-tabs
         v-model:model-value="selectedTab"
